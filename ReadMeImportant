@@ -1,0 +1,4 @@
+#How to run android virtual device without running the Android Studio
+1. Run cd C:\Users\lenovo\AppData\Local\Android\Sdk\emulator
+2. Run emulator -avd Nexus_5x_API_28_x86 -netdelay none -netspeed full
+Then IT will run the Android Device 
