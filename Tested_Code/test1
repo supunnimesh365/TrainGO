@@ -1,0 +1,46 @@
+const MyApp = createMaterialBottomTabNavigator(
+  {
+    Home: { screen: Home,  
+      navigationOptions:{  
+          tabBarLabel:'Home',  
+          tabBarIcon: ({ tintColor }) => (  
+              <View>  
+                  <Icon1 style={[{color: tintColor}]} size={20} name='home'/>  
+              </View>),  
+      },
+  },
+    Wallet: { screen: Wallet,
+      navigationOptions:{
+        tabBarLabel:'Wallet',
+        tabBarIcon: ({ tintColor}) => (
+          <View>
+              <Icon1 style={[{color:tintColor}]} size={20} name='wallet'/>
+          </View>),
+           activeColor: 'black',  
+           inactiveColor: 'white',  
+           barStyle: { backgroundColor: '#2683c6' },  
+      },
+    },
+    Booking: { screen: Booking,
+      navigationOptions:{
+        tabBarLabel:'Booking',
+        tabBarIcon: ({ tintColor}) => (
+          <View>
+            <Icon1 style={[{color:tintColor}]} size={20} name='book'/>
+          </View>),
+          activeColor: 'black',
+          inactiveColor: 'white',
+          barStyle: { backgroundColor: '#2683c6'},
+      },
+    },
+  },
+  {  
+    initialRouteName: "Home",  
+    activeColor: 'black',  
+    inactiveColor: 'white',  
+    fontWeight: 'bald',
+    barStyle: { backgroundColor: '#2683c6' },  
+  },  
+)
+
+export default createAppContainer(MyApp);

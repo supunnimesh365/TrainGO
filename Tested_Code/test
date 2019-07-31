@@ -1,0 +1,61 @@
+const MyApp = createBottomTabNavigator(
+  {
+      Home: Home,
+      Wallet: Wallet,
+      Booking: Booking
+  },
+  {
+      defaultNavigationOptions: ({ navigation }) => ({
+          tabBarIcon: ({ focused, horizontal, tintColor }) => {
+              const { routeName } = navigation.state;
+              if (routeName === 'Home') {
+                  return (
+                      <Icon1 name="home" size={30} />
+                  );
+              }
+              else if(routeName === 'Wallet'){
+                  return (
+                      <Icon1 name="wallet" size={30} />
+                  );
+              }
+              else {
+                  return (
+                      <Icon1 name="book" size={30} />
+                  );
+              }
+          },
+      }),
+      tabBarOptions: {
+          activeTintColor: '#1E4D94',
+          inactiveTintColor: '#263238',
+          //activeBackgroundColor: '#A9A9F5',
+          tabBarIcon: '#A9A9F5',
+          activetabBarIcon:'black',
+          labelStyle: {
+            fontSize: 12,
+          },
+          style: {
+            backgroundColor: '#CECEF6',
+          },
+          //backgroundColor:'#CECEF6'
+        },
+  }
+)
+
+export default createAppContainer(MyApp);
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+  },
+  header:{
+    fontSize: 50,
+    textAlign: 'center',
+    margin: 10,
+    marginBottom: 90,
+    color: 'grey',
+  }
+});
