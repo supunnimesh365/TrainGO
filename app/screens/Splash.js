@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Image, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, Image, StyleSheet, ActivityIndicator, StatusBar } from 'react-native';
 
 export default class Splash extends Component {
   constructor(props) {
@@ -17,8 +17,12 @@ export default class Splash extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Image source={require('./../assets/Group_2.png')}/>
-        <Text>Train GO</Text>
+        <StatusBar
+          translucent
+          backgroundColor="#ffffff"
+          barStyle="dark-content"
+        />
+        <Image source={require('./../assets/Train05.png')}/>
         <ActivityIndicator size="large" color="blue"/>
       </View>
     );
