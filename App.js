@@ -22,7 +22,32 @@ import * as constants from './app/constants';
 import { Block } from './app/components';
 import Icon1 from 'react-native-vector-icons/AntDesign'
 import Splash from './app/screens/Splash';
+import Login from './app/screens/Login';
+import firebase from './app/constants/firebase';
+
+
+//NEED Validating need places
+
 class App extends Component{
+
+  // componentWillMount(){
+  //   // Your web app's Firebase configuration
+  // var firebaseConfig = {
+  //   apiKey: "AIzaSyDzBchctm2VgacqpThTN0FRRHfwZSuaoZM",
+  //   authDomain: "traingoapp.firebaseapp.com",
+  //   databaseURL: "https://traingoapp.firebaseio.com",
+  //   projectId: "traingoapp",
+  //   storageBucket: "traingoapp.appspot.com",
+  //   messagingSenderId: "646862527248",
+  //   appId: "1:646862527248:web:b26022c7603ce35497e395"
+  // };
+  // // Initialize Firebase
+  // firebase.initializeApp(firebaseConfig);
+  // console.log(firebase);
+  // }
+
+
+
   render(){
     return (
       <AppContainer/>
@@ -104,7 +129,8 @@ const AppSwitchNavigator = createSwitchNavigator({
   Splash:{screen:Splash},
   Welcome:{screen:WelcomeScreen},
   Dashboard1:{screen:AppDrawerNavigator},
-  Signup:{screen:Signup}
+  Signup:{screen:Signup},
+  Login:{screen:Login}
 });
 
 
