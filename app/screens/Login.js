@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, TextInput, StyleSheet, Dimensions, TouchableOpacity, Image, StatusBar } from 'react-native';
+import { View, Text, Alert, TextInput, StyleSheet, Dimensions, TouchableOpacity, Image, StatusBar } from 'react-native';
 //import { TouchableOpacity } from 'react-native-gesture-handler';
 import firebase from './../constants/firebase';
 
@@ -11,7 +11,8 @@ export default class Login extends Component {
     super(props);
     this.state = {
       email: '',
-      password: ''
+      password: '',
+      errorMessage: '',
     };
   }
 
@@ -21,11 +22,60 @@ export default class Login extends Component {
 
   Login = () => {
     const { email, password } = this.state
-    firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password)
-      .then(() => this.props.navigation.navigate('Dashboard1'))
-      .catch(error => this.setState({ errorMessage: error.message }))
+    let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    console.log(email, password);
+    if (email == '' || password == '') {
+      console.log("Fill the two sections");
+      -Alert.alert(
+        'Error',
+        'Fill the two sections',
+        [
+          { text: 'OK', onPress: () => console.log('OK Pressed') },
+        ],
+        { cancelable: false },
+      );
+    }
+    else if (reg.test(email) == false) {
+      console.log("Invalid Email");
+      Alert.alert(
+        'Error',
+        'Invalid Email',
+        [
+          { text: 'OK', onPress: () => console.log('OK Pressed') },
+        ],
+        { cancelable: false },
+      );
+    }
+    else {
+      firebase
+        .auth()
+        .signInWithEmailAndPassword(email, password)
+        .then(() => this.props.navigation.navigate('Dashboard1'))
+        .catch(error => Alert.alert(
+          'Error',
+          error.message,
+          [
+            { text: 'OK', onPress: () => console.log('OK Pressed') },
+          ],
+          { cancelable: false },
+        ))
+    }
+
+    // if(this.state.errorMessage == null)
+    // console.log(this.state.errorMessage);
+    // if(this.state.errorMessage == ''){
+
+    // }else{
+    //   Alert.alert(
+    //     'Error',
+    //     this.state.errorMessage,
+    //     [
+    //       {text: 'OK', onPress: () => console.log('OK Pressed')},
+    //     ],
+    //     {cancelable: false},
+    //   );
+    //   this.setState({ errorMessage: '' })
+    // }
   }
 
 
