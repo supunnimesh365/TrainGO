@@ -16,37 +16,75 @@ import uuid from 'uuid-random';
 import firebase from './../constants/firebase';
 const { width, height } = Dimensions.get('window')
 export default class Signup extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            username: '', password: '', email: '', phone_number: '', success: false
+        };
+      }
 
 
-    
-//NEED Validating need places
-
-    state = {
-        username: '', password: '', email: '', phone_number: '', success: false
-    }
+    //NEED Validating need places
 
     onChangeText = (key, val) => {
         this.setState({ [key]: val })
     }
 
 
-
-
-
     signUp = () => {
-        // {username, password} = this.state
-        firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password).then(() =>
-            this.props.navigation.navigate('Dashboard1'),
+        this.setState({success: true});
+        let { username, password, email, phone_number, success } = this.state;
+        // let user;
+        let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+        if (username == '' || password == '' || email == '' || phone_number == '') {
+            console.log("Fill out all the fields");
+        }
+        else if (reg.test(email) == false) {
+            console.log("Not a email");
+        }
+        else if (!phone_number.match(/^[0-9]{10}$/)) {
+            console.log("Not a phone number");
+        }
+        else if (!password.match(/^.*(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%&]).*$/)) {
+            console.log('Password should be strong and secure');
+        }
+        else {
+            firebase.auth().createUserWithEmailAndPassword(email, password).then(() =>
+                firebase.database().ref('users/' + firebase.auth().currentUser.uid).set({
+                    username: username,
+                    email: email,
+                    phone_number: phone_number,
+                    account_balance: 0
+                    // profile_picture : imageUrl
+                })
 
-        ).catch(function (error) {
-            // Handle Errors here.
-            console.log(error);
-            var errorCode = error.code;
-            var errorMessage = error.message;
-            // ...
-        });
+                // firebase.database().ref('users/' + email).set({
+                //     username: username,
+                //     email: email,
+                //     phone_number: phone_number,
+                //     account_balance: 0
+                //     // profile_picture : imageUrl
+                //   }).then(()=>
 
-        
+
+
+            ).catch(function (error) {
+                // Handle Errors here.
+                console.log(error);
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                // ...
+            });
+
+        }
+
+
+
+
+
+
+
+
 
     }
 
@@ -101,7 +139,7 @@ export default class Signup extends Component {
                 </View>
             )
         }
-        else {
+        else if(this.state.success == true) {
             return (
                 <View style={styles.container}>
                     <StatusBar

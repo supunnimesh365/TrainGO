@@ -8,6 +8,7 @@ class Wallet extends Component {
     };
   }
 
+  // viewing balance, history
   render() {
     return (
       <View>

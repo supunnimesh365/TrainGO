@@ -13,6 +13,7 @@ export default class Login extends Component {
       email: '',
       password: '',
       errorMessage: '',
+      success: false
     };
   }
 

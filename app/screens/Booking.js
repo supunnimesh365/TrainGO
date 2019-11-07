@@ -8,6 +8,8 @@ class Booking extends Component {
     };
   }
 
+  // Booking a ticket and generate QR code
+  // or authorization number
   render() {
     return (
       <View>

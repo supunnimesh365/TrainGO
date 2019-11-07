@@ -8,6 +8,10 @@ class Settings extends Component {
     };
   }
 
+  // color scheme
+  // profile details changing
+  // payment options
+
   render() {
     return (
       <View>

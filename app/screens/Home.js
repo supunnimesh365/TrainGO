@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { View, StatusBar, Platform, Linking, PermissionsAndroid, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, StatusBar, Platform, Dimensions, Alert, PermissionsAndroid, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { CameraKitCameraScreen, } from 'react-native-camera-kit';
+const { width, height } = Dimensions.get('window')
 import firebase from './../constants/firebase';
 
 class Home extends Component {
@@ -9,19 +10,65 @@ class Home extends Component {
     this.state = {
       QR_Code_Value: '',
       Start_Scanner: false,
+      Start_Station: '',
+      Trip_Started: false,
+      End_Station: '',
+      Trip_End: false,
+      Access: false,
+      uid:'',
+      Wallet_Balance:''
     };
   }
 
 
-//NEED TO CHECK WHETHER USER IS AUTHORIZID
+  //NEED TO CHECK WHETHER USER IS AUTHORIZID
   componentDidMount() {
     var user = firebase.auth().currentUser;
+    let { QR_Code_Value,
+      Start_Scanner,
+      Start_Station,
+      Trip_Started,
+      End_Station,
+      Trip_End } = this.state;
+      this.setState({uid:firebase.auth().currentUser.uid});
+      //get trip end false one from the DB
 
-    user.sendEmailVerification().then(function () {
-      // Email sent.
-    }).catch(function (error) {
-      // An error happened.
-    });
+
+      // get data from the Database
+  if (firebase.auth().currentUser.emailVerified == false){
+    Alert.alert(
+      'Reminder',
+      'Please confirm your e-mail to continue with our services',
+      [
+        { text: 'OK', onPress: () => user.sendEmailVerification() },
+      ],
+      { cancelable: false },
+    );
+    // user.sendEmailVerification().then(function () {
+    //   Alert.alert(
+    //     'Reminder',
+    //     'A new e-mail has being sent to your mail to confirm',
+    //     [
+    //       { text: 'OK', onPress: () => console.log('OK Pressed') },
+    //     ],
+    //     { cancelable: false },
+    //   );
+    // }).catch(function (error) {
+    //   // An error happened.
+    //   Alert.alert(
+    //     'Reminder',
+    //     error,
+    //     [
+    //       { text: 'OK', onPress: () => console.log('OK Pressed') },
+    //     ],
+    //     { cancelable: false },
+    //   );
+    // });
+  }
+  else{}
+    // check account verified, account balance
+    // show alerts to verify and to top up
+    
 
   }
 
@@ -29,6 +76,13 @@ class Home extends Component {
   onQR_Code_Scan_Done = (QR_Code) => {
     this.setState({ QR_Code_Value: QR_Code });
     this.setState({ Start_Scanner: false });
+    // recent travel details getting
+    // send the starting station
+    // send the ending station then
+    // calculate the price
+    // passenger, type, child, set
+    // finalysing the travel
+    // reduce prive and display tick mark
   }
 
   open_QR_Code_Scanner = () => {
@@ -83,7 +137,7 @@ class Home extends Component {
             barStyle="dark-content"
             backgroundColor="#ffffff"
           />
-          <Text style={{ fontSize: 22, textAlign: 'center' }}>React Native Scan QR Code Example</Text>
+          <Text style={{ fontSize: 22, textAlign: 'center' }}>Scan QR Code To Start Your Trip</Text>
 
           <Text style={styles.QR_text}>
             {this.state.QR_Code_Value ? 'Scanned QR Code: ' + this.state.QR_Code_Value : ''}
@@ -100,7 +154,7 @@ class Home extends Component {
           <TouchableOpacity
             onPress={this.open_QR_Code_Scanner}
             style={styles.button}>
-            <Text>
+            <Text style={styles.buttontxt}>
               Open QR Scanner
             </Text>
           </TouchableOpacity>
@@ -160,11 +214,16 @@ const styles = StyleSheet.create({
     marginTop: 12
   },
   button: {
-    backgroundColor: 'white',
+    backgroundColor: 'black',
     height: 70,
+    width: 200,
+    height: 50,
     marginHorizontal: 20,
     borderRadius: 35,
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  buttontxt: {
+    color: 'white',
   }
 });
