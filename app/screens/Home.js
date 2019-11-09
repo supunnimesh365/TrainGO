@@ -10,13 +10,16 @@ class Home extends Component {
     this.state = {
       QR_Code_Value: '',
       Start_Scanner: false,
+      Start_App: false,
       Start_Station: '',
       Trip_Started: false,
       End_Station: '',
       Trip_End: false,
       Access: false,
-      uid:'',
-      Wallet_Balance:''
+      uid: '',
+      Wallet_Balance: '',
+      date: '',
+      changeVal: true
     };
   }
 
@@ -30,52 +33,66 @@ class Home extends Component {
       Trip_Started,
       End_Station,
       Trip_End } = this.state;
-      this.setState({uid:firebase.auth().currentUser.uid});
-      //get trip end false one from the DB
+    this.setState({ uid: firebase.auth().currentUser.uid });
+    //get trip end false one from the DB
 
 
-      // get data from the Database
-  if (firebase.auth().currentUser.emailVerified == false){
-    Alert.alert(
-      'Reminder',
-      'Please confirm your e-mail to continue with our services',
-      [
-        { text: 'OK', onPress: () => user.sendEmailVerification() },
-      ],
-      { cancelable: false },
-    );
-    // user.sendEmailVerification().then(function () {
-    //   Alert.alert(
-    //     'Reminder',
-    //     'A new e-mail has being sent to your mail to confirm',
-    //     [
-    //       { text: 'OK', onPress: () => console.log('OK Pressed') },
-    //     ],
-    //     { cancelable: false },
-    //   );
-    // }).catch(function (error) {
-    //   // An error happened.
-    //   Alert.alert(
-    //     'Reminder',
-    //     error,
-    //     [
-    //       { text: 'OK', onPress: () => console.log('OK Pressed') },
-    //     ],
-    //     { cancelable: false },
-    //   );
-    // });
-  }
-  else{}
+    // get data from the Database
+    if (firebase.auth().currentUser.emailVerified == false) {
+      Alert.alert(
+        'Reminder',
+        'Please confirm your e-mail to continue with our services',
+        [
+          { text: 'OK', onPress: () => user.sendEmailVerification() },
+        ],
+        { cancelable: false },
+      );
+      this.setState({ Start_App: false });
+    }
+    else {
+      this.setState({ Start_App: true });
+    }
     // check account verified, account balance
     // show alerts to verify and to top up
-    
-
   }
 
 
   onQR_Code_Scan_Done = (QR_Code) => {
-    this.setState({ QR_Code_Value: QR_Code });
-    this.setState({ Start_Scanner: false });
+    if (!QR_Code.startsWith('{')) {
+      Alert.alert(
+        'Warning',
+        'This is not a correEct QR code',
+        [
+          { text: 'OK', onPress: () => console.log('OK Pressed') },
+        ],
+        { cancelable: false },
+      );
+    } else {
+      this.setState({ Start_Scanner: false });
+      var obj = JSON.parse(QR_Code);
+      this.setState({ QR_Code_Value: obj });
+      // console.log(obj.station_id);
+      if (!obj.station_id) {
+        Alert.alert(
+          'Warning',
+          'This is not a correct QR code',
+          [
+            { text: 'OK', onPress: () => console.log('OK Pressed') },
+          ],
+          { cancelable: false },
+        );
+      }
+      if (this.state.Start_Station == '') {
+        this.setState({ Start_Station: obj.station_id });
+        this.setState({ date: obj.date });
+        this.setState({ changeVal: false });
+      }
+      else {
+        this.setState({ End_Station: obj.station_id });
+        this.setState({ Trip_End: true });
+      }
+    }
+
     // recent travel details getting
     // send the starting station
     // send the ending station then
@@ -83,6 +100,17 @@ class Home extends Component {
     // passenger, type, child, set
     // finalysing the travel
     // reduce prive and display tick mark
+  }
+
+  changeValues = () => {
+    Alert.alert(
+      'Confirmation',
+      'Going to change default values',
+      [
+        { text: 'OK', onPress: () => console.log('OK Pressed') },
+      ],
+      { cancelable: false },
+    );
   }
 
   open_QR_Code_Scanner = () => {
@@ -118,18 +146,7 @@ class Home extends Component {
   }
 
   render() {
-    // return (
-    //   <SafeAreaView style={[styles.container, { backgroundColor: '#ecf0f1' }]}>
-    // <StatusBar
-    //   barStyle="dark-content"
-    //   backgroundColor="#ffffff"
-    // />
-    //     <Text style={styles.paragraph}>
-    //       Dark Screen
-    //     </Text>
-    //   </SafeAreaView>
-    // );
-    if (!this.state.Start_Scanner) {
+    if (!this.state.Start_Scanner && this.state.Start_App && !this.state.Trip_End) {
 
       return (
         <View style={[styles.container, { backgroundColor: '#ecf0f1' }]}>
@@ -137,19 +154,42 @@ class Home extends Component {
             barStyle="dark-content"
             backgroundColor="#ffffff"
           />
-          <Text style={{ fontSize: 22, textAlign: 'center' }}>Scan QR Code To Start Your Trip</Text>
-
-          <Text style={styles.QR_text}>
-            {this.state.QR_Code_Value ? 'Scanned QR Code: ' + this.state.QR_Code_Value : ''}
+          <Text style={{ fontSize: 22, textAlign: 'center' }}>
+            {this.state.Start_Station ? 'Scan QR Code To End Your Trip' : 'Scan QR Code To Start Your Trip'}
           </Text>
-
-          {/* {this.state.QR_Code_Value.includes("http") ?
-            <TouchableOpacity
-              onPress={this.openLink_in_browser}
-              style={styles.button}>
-              <Text style={{ color: '#FFF', fontSize: 14 }}>Open Link in default Browser</Text>
-            </TouchableOpacity> : null
-          } */}
+          <Text style={styles.QR_text}>
+            {this.state.QR_Code_Value ? 'Your Trip has started \n' +
+              'Date:' + this.state.QR_Code_Value.date + '\n' +
+              'Start Station:' + this.state.Start_Station + '\n' : ''}
+          </Text>
+          <TouchableOpacity
+            onPress={this.changeValues}
+            style={this.state.changeVal ? {
+              backgroundColor: '#D3D3D3',
+              height: 70,
+              width: 200,
+              height: 50,
+              marginHorizontal: 20,
+              borderRadius: 35,
+              alignItems: 'center',
+              justifyContent: 'center',
+            } : {
+                backgroundColor: 'black',
+                height: 70,
+                width: 200,
+                height: 50,
+                marginHorizontal: 20,
+                borderRadius: 35,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            disabled={this.state.changeVal}
+          // activeOpacity={this.state.changeVal?0.1:0.9}
+          >
+            <Text style={styles.buttontxt}>
+              Edit details
+            </Text>
+          </TouchableOpacity>
 
           <TouchableOpacity
             onPress={this.open_QR_Code_Scanner}
@@ -161,6 +201,18 @@ class Home extends Component {
 
         </View>
       );
+    }
+    else if (!this.state.Start_App) {
+      return (
+        <View><Text>Please confirm email to continue with</Text></View>
+      )
+    }
+    else if (this.state.Trip_End) {
+      return (
+        <View>
+          <Text>Your have completed your Trip</Text>
+        </View>
+      )
     }
     return (
       <View style={{ flex: 1 }}>
@@ -183,6 +235,7 @@ class Home extends Component {
           }}
           onReadCode={event =>
             this.onQR_Code_Scan_Done(event.nativeEvent.codeStringValue)
+            // this.setState({ Start_Scanner: false })
           }
         />
 
@@ -221,7 +274,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     borderRadius: 35,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   buttontxt: {
     color: 'white',
