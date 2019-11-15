@@ -1,9 +1,24 @@
 import React, { Component } from 'react';
-import { View, StatusBar, Platform, Dimensions, Alert, PermissionsAndroid, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, StatusBar, ActivityIndicator, Platform, Image, Dimensions, Alert, TextInput, PermissionsAndroid, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { CameraKitCameraScreen, } from 'react-native-camera-kit';
 const { width, height } = Dimensions.get('window')
+import { Slider, Card, ButtonGroup } from 'react-native-elements';
 import firebase from './../constants/firebase';
+import uuid from 'uuid-random';
 
+// station device QRcode change daily
+// get value for trip (Ex: Kandana676768Maradana909090)
+// calculate for all the passengers
+// generate uuid and to DB record
+// reduce it from balance
+// QR Code generated in the screen => it also have this things uuid
+// start station end station passengercount class uuid => DB
+// 
+// compare all of them
+// 
+// 
+//
+// send it to DB
 class Home extends Component {
   constructor(props) {
     super(props);
@@ -12,29 +27,77 @@ class Home extends Component {
       Start_Scanner: false,
       Start_App: false,
       Start_Station: '',
+      Start_Station_Name: '',
       Trip_Started: false,
       End_Station: '',
+      End_Station_Name: '',
       Trip_End: false,
       Access: false,
       uid: '',
       Wallet_Balance: '',
       date: '',
-      changeVal: true
+      changeVal: true,
+      classVal: 3,
+      passengersCount: 1,
+      passengersCountHalf: 1,
+      successLoad: false,
+      tripID: uuid()
+
     };
+    this.updateClass = this.updateClass.bind(this)
+    this.updateFull = this.updateFull.bind(this)
+    this.updateHalf = this.updateHalf.bind(this)
   }
 
+  updateFull(passengersCount) {
+    passengersCount = passengersCount + 1
+    this.setState({ passengersCount })
+  }
+
+  updateHalf(passengersCountHalf) {
+    passengersCountHalf = passengersCountHalf + 1
+    this.setState({ passengersCountHalf })
+  }
+  updateClass(classVal) {
+    classVal = classVal + 1
+    this.setState({ classVal })
+  }
 
   //NEED TO CHECK WHETHER USER IS AUTHORIZID
   componentDidMount() {
+
+    //var that = this;
     var user = firebase.auth().currentUser;
     let { QR_Code_Value,
       Start_Scanner,
       Start_Station,
       Trip_Started,
       End_Station,
-      Trip_End } = this.state;
-    this.setState({ uid: firebase.auth().currentUser.uid });
-    //get trip end false one from the DB
+      Trip_End,
+      uid,
+      Wallet_Balance } = this.state;
+
+    const usrid = firebase.auth().currentUser.uid
+    firebase.database().ref("users/" + usrid).on("value", function (snapshot) {
+      var newuser = snapshot.val();
+      console.log("4", newuser.account_balance);
+      if (newuser.Wallet_Balance < 100) {
+        Alert.alert(
+          'Reminder==',
+          'Your account is on LOW BALANCE' + this.state.Wallet_Balance + ', please recharge',
+          [
+            { text: 'OK', onPress: () => console.log('OK Pressed') },
+          ],
+          { cancelable: false },
+        );
+        this.setState({ Start_App: true });
+      }
+      else{
+        this.setState({Wallet_Balance:newuser.Wallet_Balance});
+      }
+    }, function (error) {
+      console.log("Error: " + error.code);
+    });
 
 
     // get data from the Database
@@ -84,12 +147,39 @@ class Home extends Component {
       }
       if (this.state.Start_Station == '') {
         this.setState({ Start_Station: obj.station_id });
+        this.setState({ Start_Station_Name: obj.station_name });
         this.setState({ date: obj.date });
         this.setState({ changeVal: false });
       }
       else {
         this.setState({ End_Station: obj.station_id });
+        this.setState({ End_Station_Name: obj.station_name });
         this.setState({ Trip_End: true });
+        const key1 = this.state.Start_Station_Name+this.state.Start_Station+obj.station_name+obj.station_id;
+        const key2 = obj.station_name+obj.station_id+this.state.Start_Station_Name+this.state.Start_Station;
+        console.log('key1',key1);
+        firebase.database().ref("fare/" + key1+'/'+this.state.classVal+'/').on("value", function (snapshot) {
+          var fare = snapshot.val();
+          console.log(fare)
+          Alert.alert(
+            'Reminder=='+fare,
+            'Your account is on LOW BALANCE, please recharge',
+            [
+              { text: 'OK', onPress: () => console.log('OK Pressed') },
+            ],
+            { cancelable: false },
+          );
+        },function(error){
+
+        })
+
+
+        firebase.database().ref('trips/' + this.state.tripID).set({
+          // username: username,
+          // email: email,
+          // phone_number: phone_number,
+          // account_balance: 0
+        })
       }
     }
 
@@ -112,6 +202,14 @@ class Home extends Component {
       { cancelable: false },
     );
   }
+
+  // saveInfo = () => {
+  //   console.log(this.state.Start_Station);
+  //   console.log(this.state.classVal);
+  //   console.log(this.state.passengersCount);
+  //   // create uid and save to DB
+  //   this.setState({ changeVal: true });
+  // }
 
   open_QR_Code_Scanner = () => {
 
@@ -146,71 +244,117 @@ class Home extends Component {
   }
 
   render() {
+    const classes = ['Class 1', 'Class 2', 'Class 3']
+    const halves = ['1', '2', '3', '4', '5', '6']
+    const full = ['1', '2', '3', '4', '5', '6']
+    const { classVal } = this.state
+    const { passengersCount } = this.state
+    const { passengersCountHalf } = this.state
     if (!this.state.Start_Scanner && this.state.Start_App && !this.state.Trip_End) {
 
       return (
-        <View style={[styles.container, { backgroundColor: '#ecf0f1' }]}>
+        <View style={[styles.container]}>
           <StatusBar
             barStyle="dark-content"
             backgroundColor="#ffffff"
           />
-          <Text style={{ fontSize: 22, textAlign: 'center' }}>
-            {this.state.Start_Station ? 'Scan QR Code To End Your Trip' : 'Scan QR Code To Start Your Trip'}
-          </Text>
-          <Text style={styles.QR_text}>
+          {this.state.QR_Code_Value ?
+            <View style={styles.ticketContainer}>
+              <Card title="Ticket">
+                <Text>Date:{this.state.date}</Text>
+                <Text>From:{this.state.Start_Station}</Text>
+                <Text>Class:{this.state.classVal}</Text>
+                <Text>Tickets: Full: {this.state.passengersCount} | Half: {this.state.passengersCountHalf}</Text>
+              </Card>
+            </View> : <View></View>}
+          <View style={styles.txtContainer}>
+            <Card title={this.state.Start_Station ? 'Scan QR Code To End Your Trip' : 'Scan QR Code To Start Your Trip'}>
+              <TouchableOpacity
+                onPress={this.open_QR_Code_Scanner}
+                style={styles.button}>
+                <Text style={styles.buttontxt}>
+                  Open QR Scanner
+            </Text>
+              </TouchableOpacity>
+            </Card>
+            {/* <Text style={styles.paragraph}>
+              {this.state.Start_Station ? 'Scan QR Code To End Your Trip' : 'Scan QR Code To Start Your Trip'}
+            </Text> */}
+
+          </View>
+          {/* <Text style={styles.QR_text}>
             {this.state.QR_Code_Value ? 'Your Trip has started \n' +
               'Date:' + this.state.QR_Code_Value.date + '\n' +
               'Start Station:' + this.state.Start_Station + '\n' : ''}
-          </Text>
-          <TouchableOpacity
-            onPress={this.changeValues}
-            style={this.state.changeVal ? {
-              backgroundColor: '#D3D3D3',
-              height: 70,
-              width: 200,
-              height: 50,
-              marginHorizontal: 20,
-              borderRadius: 35,
-              alignItems: 'center',
-              justifyContent: 'center',
-            } : {
-                backgroundColor: 'black',
-                height: 70,
-                width: 200,
-                height: 50,
-                marginHorizontal: 20,
-                borderRadius: 35,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            disabled={this.state.changeVal}
-          // activeOpacity={this.state.changeVal?0.1:0.9}
-          >
-            <Text style={styles.buttontxt}>
-              Edit details
-            </Text>
-          </TouchableOpacity>
+          </Text> */}
 
-          <TouchableOpacity
-            onPress={this.open_QR_Code_Scanner}
-            style={styles.button}>
-            <Text style={styles.buttontxt}>
-              Open QR Scanner
-            </Text>
-          </TouchableOpacity>
+
+          {this.state.changeVal ?
+            <View></View> : <View style={styles.newContainer}>
+              <Card title="Edit Your Details">
+
+                <ButtonGroup
+                  onPress={this.updateHalf}
+                  selectedIndex={passengersCountHalf - 1}
+                  buttons={halves}
+                  containerStyle={{ height: 50 }}
+                />
+                <ButtonGroup
+                  onPress={this.updateFull}
+                  selectedIndex={passengersCount - 1}
+                  buttons={full}
+                  containerStyle={{ height: 50 }}
+                />
+                <ButtonGroup
+                  onPress={this.updateClass}
+                  selectedIndex={classVal - 1}
+                  buttons={classes}
+                  containerStyle={{ height: 65 }}
+                />
+                {/* <TouchableOpacity
+                  onPress={this.saveInfo}
+                  style={styles.button}>
+                  <Text style={styles.buttontxt}>
+                    OK
+                  </Text>
+                </TouchableOpacity> */}
+              </Card>
+            </View>
+          }
 
         </View>
       );
     }
     else if (!this.state.Start_App) {
       return (
-        <View><Text>Please confirm email to continue with</Text></View>
+        <View style={{ backgroundColor: 'Black' }}><Text>Please confirm email to continue with</Text></View>
       )
     }
     else if (this.state.Trip_End) {
       return (
+        <View style={styles.txtContainer}>
+          <Card title="You have completed the journey">
+            <TouchableOpacity
+              // onPress={this.open_QR_Code_Scanner}
+              style={styles.button}>
+              <Text style={styles.buttontxt}>
+                Pay Now
+                </Text>
+            </TouchableOpacity>
+          </Card>
+        </View>
+      )
+    }
+    else if (this.state.successLoad) {
+      return (
         <View>
-          <Text>Your have completed your Trip</Text>
+          <StatusBar
+            translucent
+            backgroundColor="#ffffff"
+            barStyle="dark-content"
+          />
+          <Image source={require('./../assets/Train05.png')} />
+          <ActivityIndicator size="large" color="blue" />
         </View>
       )
     }
@@ -248,17 +392,49 @@ export default Home;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 2,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
   },
   paragraph: {
-    fontSize: 50,
+    fontSize: 10,
     textAlign: 'center',
     margin: 10,
-    marginBottom: 90,
     color: 'black',
+  },
+  newContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: "stretch",
+  },
+  txtContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: (height / 2)-50,
+    // top: height / 2,
+    // height: 150,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ticketContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    // bottom: 0,
+    top: 0,
+    height: 150,
+  },
+  btnContainer: {
+    position: 'relative',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 150,
+    padding: 20,
   },
   QR_text: {
     color: '#000',
@@ -270,8 +446,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
     height: 70,
     width: 200,
+    alignSelf: 'center',
     height: 50,
-    marginHorizontal: 20,
     borderRadius: 35,
     alignItems: 'center',
     justifyContent: 'center',

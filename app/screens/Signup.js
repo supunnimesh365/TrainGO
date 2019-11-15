@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 //import {View, Text} from 'react-native';
 import {
     View,
+    Alert,
     Text,
     Button,
     Image,
@@ -32,23 +33,56 @@ export default class Signup extends Component {
 
 
     signUp = () => {
-        this.setState({success: true});
+        // this.setState({success: true});
         let { username, password, email, phone_number, success } = this.state;
         // let user;
         let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
         if (username == '' || password == '' || email == '' || phone_number == '') {
             console.log("Fill out all the fields");
+            Alert.alert(
+                'Warning',
+                'Please fill all the fields',
+                [
+                  { text: 'OK', onPress: () => console.log('OK Pressed') },
+                ],
+                { cancelable: false },
+              );
         }
         else if (reg.test(email) == false) {
             console.log("Not a email");
+            Alert.alert(
+                'Warning',
+                'Not a valid E-mail',
+                [
+                  { text: 'OK', onPress: () => console.log('OK Pressed') },
+                ],
+                { cancelable: false },
+              );
         }
         else if (!phone_number.match(/^[0-9]{10}$/)) {
             console.log("Not a phone number");
+            Alert.alert(
+                'Warning',
+                'Not a valid Phone Number',
+                [
+                  { text: 'OK', onPress: () => console.log('OK Pressed') },
+                ],
+                { cancelable: false },
+              );
         }
         else if (!password.match(/^.*(?=.{8,})(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%&]).*$/)) {
             console.log('Password should be strong and secure');
+            Alert.alert(
+                'Warning',
+                'Password should be strong and secure',
+                [
+                  { text: 'OK', onPress: () => console.log('OK Pressed') },
+                ],
+                { cancelable: false },
+              );
         }
         else {
+            this.setState({success: true});
             firebase.auth().createUserWithEmailAndPassword(email, password).then(() =>
                 firebase.database().ref('users/' + firebase.auth().currentUser.uid).set({
                     username: username,
@@ -134,6 +168,9 @@ export default class Signup extends Component {
                         />
                         <TouchableOpacity style={styles.button} onPress={() => this.signUp()}>
                             <Text>S I G N  U P</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.buttonlink} onPress={() => this.props.navigation.navigate('Login')}>
+                            <Text>back to login</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
