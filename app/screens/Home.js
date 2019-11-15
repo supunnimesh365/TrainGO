@@ -34,7 +34,7 @@ class Home extends Component {
       Trip_End: false,
       Access: false,
       uid: '',
-      Wallet_Balance: '',
+      Wallet_Balance: 0,
       date: '',
       changeVal: true,
       classVal: 3,
@@ -78,10 +78,10 @@ class Home extends Component {
       Wallet_Balance } = this.state;
 
     const usrid = firebase.auth().currentUser.uid
-    firebase.database().ref("users/" + usrid).on("value", function (snapshot) {
+    firebase.database().ref("users/" + usrid).on("value", (snapshot) => {
       var newuser = snapshot.val();
       console.log("4", newuser.account_balance);
-      if (newuser.Wallet_Balance < 100) {
+      if (newuser.account_balance < 100) {
         Alert.alert(
           'Reminder==',
           'Your account is on LOW BALANCE' + this.state.Wallet_Balance + ', please recharge',
@@ -93,7 +93,8 @@ class Home extends Component {
         this.setState({ Start_App: true });
       }
       else{
-        this.setState({Wallet_Balance:newuser.Wallet_Balance});
+        // console.log(newuser.)
+        this.setState({Wallet_Balance:newuser.account_balance});
       }
     }, function (error) {
       console.log("Error: " + error.code);
@@ -158,28 +159,41 @@ class Home extends Component {
         const key1 = this.state.Start_Station_Name+this.state.Start_Station+obj.station_name+obj.station_id;
         const key2 = obj.station_name+obj.station_id+this.state.Start_Station_Name+this.state.Start_Station;
         console.log('key1',key1);
-        firebase.database().ref("fare/" + key1+'/'+this.state.classVal+'/').on("value", function (snapshot) {
+        firebase.database().ref("fare/" + key1+'/'+this.state.classVal+'/').on("value", (snapshot) => {
           var fare = snapshot.val();
           console.log(fare)
-          Alert.alert(
-            'Reminder=='+fare,
-            'Your account is on LOW BALANCE, please recharge',
-            [
-              { text: 'OK', onPress: () => console.log('OK Pressed') },
-            ],
-            { cancelable: false },
-          );
+          const totFare = this.state.passengersCount*fare.full + this.state.passengersCountHalf*fare.half;
+          const balFare = this.state.Wallet_Balance - totFare;
+          console.log(this.state.Wallet_Balance);
+          console.log('Total Fare', totFare, 'Balance Fare', balFare);
+          // Alert.alert(
+          //   'Reminder=='+fare,
+          //   'Your account is on LOW BALANCE, please recharge',
+          //   [
+          //     { text: 'OK', onPress: () => console.log('OK Pressed') },
+          //   ],
+          //   { cancelable: false },
+          // );
         },function(error){
+          console.log("Error: " + error.code);
+        });
 
-        })
+        // const totFare = this.state.passengersCount 
 
 
-        firebase.database().ref('trips/' + this.state.tripID).set({
-          // username: username,
-          // email: email,
-          // phone_number: phone_number,
-          // account_balance: 0
-        })
+
+        // firebase.database().ref('trips/' + this.state.tripID).set({
+        //   start_station: this.state.Start_Station,
+        //   end_station: this.state.End_Station,
+        //   success: true,
+        //   charge: ,
+        //   class: ,
+        //   passenger_count:,
+        //   // username: username,
+        //   // email: email,
+        //   // phone_number: phone_number,
+        //   // account_balance: 0
+        // })
       }
     }
 
