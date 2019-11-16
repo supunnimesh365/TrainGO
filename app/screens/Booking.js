@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text } from 'react-native';
+import { Slider, Card, ButtonGroup } from 'react-native-elements';
 
 class Booking extends Component {
   constructor(props) {

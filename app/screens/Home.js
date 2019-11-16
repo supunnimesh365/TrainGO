@@ -41,8 +41,8 @@ class Home extends Component {
       passengersCount: 1,
       passengersCountHalf: 1,
       successLoad: false,
-      tripID: uuid()
-
+      tripID: uuid(),
+      usrid: firebase.auth().currentUser.uid
     };
     this.updateClass = this.updateClass.bind(this)
     this.updateFull = this.updateFull.bind(this)
@@ -92,9 +92,9 @@ class Home extends Component {
         );
         this.setState({ Start_App: true });
       }
-      else{
+      else {
         // console.log(newuser.)
-        this.setState({Wallet_Balance:newuser.account_balance});
+        this.setState({ Wallet_Balance: newuser.account_balance });
       }
     }, function (error) {
       console.log("Error: " + error.code);
@@ -156,44 +156,137 @@ class Home extends Component {
         this.setState({ End_Station: obj.station_id });
         this.setState({ End_Station_Name: obj.station_name });
         this.setState({ Trip_End: true });
-        const key1 = this.state.Start_Station_Name+this.state.Start_Station+obj.station_name+obj.station_id;
-        const key2 = obj.station_name+obj.station_id+this.state.Start_Station_Name+this.state.Start_Station;
-        console.log('key1',key1);
-        firebase.database().ref("fare/" + key1+'/'+this.state.classVal+'/').on("value", (snapshot) => {
+        const key1 = this.state.Start_Station_Name + this.state.Start_Station + obj.station_name + obj.station_id;
+        const key2 = obj.station_name + obj.station_id + this.state.Start_Station_Name + this.state.Start_Station;
+        console.log('key1', key1);
+        firebase.database().ref("fare/" + key1 + '/' + this.state.classVal + '/').on("value", (snapshot) => {
           var fare = snapshot.val();
           console.log(fare)
-          const totFare = this.state.passengersCount*fare.full + this.state.passengersCountHalf*fare.half;
-          const balFare = this.state.Wallet_Balance - totFare;
-          console.log(this.state.Wallet_Balance);
-          console.log('Total Fare', totFare, 'Balance Fare', balFare);
-          // Alert.alert(
-          //   'Reminder=='+fare,
-          //   'Your account is on LOW BALANCE, please recharge',
-          //   [
-          //     { text: 'OK', onPress: () => console.log('OK Pressed') },
-          //   ],
-          //   { cancelable: false },
-          // );
-        },function(error){
+          if (fare == null) {
+            firebase.database().ref("fare/" + key2 + '/' + this.state.classVal + '/').on("value", (snapshot) => {
+              var fare = snapshot.val();
+              console.log(fare)
+              const totFare = this.state.passengersCount * fare.full + this.state.passengersCountHalf * fare.half;
+              const balFare = this.state.Wallet_Balance - totFare;
+              if (balFare < 0) {
+                Alert.alert(
+                  'Reminder',
+                  'Your balance is now minus value, To continue with the service PLEASE RECHARGE now',
+                  [
+                    { text: 'OK', onPress: () => console.log('OK Pressed') },
+                  ],
+                  { cancelable: false },
+                );
+
+              }
+              else if (balFare < 100) {
+                Alert.alert(
+                  'Reminder',
+                  'Your balance is less than Rs.100, To continue the service PLEASE RECHARGE soon ',
+                  [
+                    { text: 'OK', onPress: () => console.log('OK Pressed') },
+                  ],
+                  { cancelable: false },
+                );
+              }
+              else {
+                Alert.alert(
+                  'Warning',
+                  'This is not a correct QR code',
+                  [
+                    { text: 'OK', onPress: () => console.log('OK Pressed') },
+                  ],
+                  { cancelable: false },
+                );
+                console.log(this.state.Wallet_Balance);
+                console.log('Total Fare', totFare, 'Balance Fare', balFare);
+              }
+              let { Start_Station, Start_Station_Name, End_Station, End_Station_Name, classVal, usrid, passengersCount, passengersCountHalf } = this.state;
+
+
+              firebase.database().ref("trips/" + this.state.tripID).set({
+                user: usrid,
+                start_station: Start_Station,
+                start_station_name: Start_Station_Name,
+                end_station: obj.station_id,
+                end_station_name: obj.station_name,
+                success: true,
+                charge: totFare,
+                class: classVal,
+                full_passenger_count: passengersCount,
+                half_passenger_count: passengersCountHalf
+              })
+              firebase.database().ref('users/' + usrid).update({
+                account_balance: balFare
+              })
+            });
+          }
+          else {
+            const totFare = this.state.passengersCount * fare.full + this.state.passengersCountHalf * fare.half;
+            const balFare = this.state.Wallet_Balance - totFare;
+            if (balFare < 0) {
+              Alert.alert(
+                'Reminder',
+                'Your balance is now minus value, To continue with the service PLEASE RECHARGE now',
+                [
+                  { text: 'OK', onPress: () => console.log('OK Pressed') },
+                ],
+                { cancelable: false },
+              );
+
+            }
+            else if (balFare < 100) {
+              Alert.alert(
+                'Reminder',
+                'Your balance is less than Rs.100, To continue the service PLEASE RECHARGE soon ',
+                [
+                  { text: 'OK', onPress: () => console.log('OK Pressed') },
+                ],
+                { cancelable: false },
+              );
+            }
+            else {
+              Alert.alert(
+                'Warning',
+                'This is not a correct QR code',
+                [
+                  { text: 'OK', onPress: () => console.log('OK Pressed') },
+                ],
+                { cancelable: false },
+              );
+              console.log(this.state.Wallet_Balance);
+              console.log('Total Fare', totFare, 'Balance Fare', balFare);
+            }
+            let { Start_Station, Start_Station_Name, End_Station, End_Station_Name, classVal, usrid, passengersCount, passengersCountHalf } = this.state;
+
+
+            firebase.database().ref("trips/" + this.state.tripID).set({
+              user: usrid,
+              start_station: Start_Station,
+              start_station_name: Start_Station_Name,
+              end_station: obj.station_id,
+              end_station_name: obj.station_name,
+              success: true,
+              charge: totFare,
+              class: classVal,
+              full_passenger_count: passengersCount,
+              half_passenger_count: passengersCountHalf
+            })
+            firebase.database().ref('users/' + usrid).update({
+              account_balance: balFare
+            })
+          }
+        }, function (error) {
           console.log("Error: " + error.code);
         });
+
+
 
         // const totFare = this.state.passengersCount 
 
 
 
-        // firebase.database().ref('trips/' + this.state.tripID).set({
-        //   start_station: this.state.Start_Station,
-        //   end_station: this.state.End_Station,
-        //   success: true,
-        //   charge: ,
-        //   class: ,
-        //   passenger_count:,
-        //   // username: username,
-        //   // email: email,
-        //   // phone_number: phone_number,
-        //   // account_balance: 0
-        // })
+
       }
     }
 
@@ -204,6 +297,30 @@ class Home extends Component {
     // passenger, type, child, set
     // finalysing the travel
     // reduce prive and display tick mark
+  }
+
+  backtoMain = () =>{
+    this.setState({ 
+      QR_Code_Value: '',
+      Start_Scanner: false,
+      Start_Station: '',
+      Start_Station_Name: '',
+      Trip_Started: false,
+      End_Station: '',
+      End_Station_Name: '',
+      Trip_End: false,
+      Access: false,
+      uid: '',
+      Wallet_Balance: 0,
+      date: '',
+      changeVal: true,
+      classVal: 3,
+      passengersCount: 1,
+      passengersCountHalf: 1,
+      successLoad: false,
+      tripID: uuid(),
+      usrid: firebase.auth().currentUser.uid
+    });
   }
 
   changeValues = () => {
@@ -349,7 +466,7 @@ class Home extends Component {
         <View style={styles.txtContainer}>
           <Card title="You have completed the journey">
             <TouchableOpacity
-              // onPress={this.open_QR_Code_Scanner}
+              onPress={this.backtoMain}
               style={styles.button}>
               <Text style={styles.buttontxt}>
                 Pay Now
@@ -428,7 +545,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: (height / 2)-50,
+    bottom: (height / 2) - 50,
     // top: height / 2,
     // height: 150,
     alignItems: 'center',
