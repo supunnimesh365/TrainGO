@@ -91,6 +91,7 @@ class Home extends Component {
           { cancelable: false },
         );
         this.setState({ Start_App: true });
+        this.setState({ Wallet_Balance: newuser.account_balance });
       }
       else {
         // console.log(newuser.)
