@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, Image } from 'react-native';
 import { Slider, Card, ButtonGroup } from 'react-native-elements';
-import CalendarPicker from 'react-native-calendar-picker';
+// import CalendarPicker from 'react-native-calendar-picker';
 
 
 export default class Booking extends Component {
@@ -28,9 +28,9 @@ export default class Booking extends Component {
     const startDate = selectedStartDate ? selectedStartDate.toString() : '';
     return (
       <View style={styles.container}>
-        <CalendarPicker
+        {/* <CalendarPicker
           onDateChange={this.onDateChange}
-        />
+        /> */}
 
         <View>
           <Text>SELECTED DATE:{startDate}</Text>
