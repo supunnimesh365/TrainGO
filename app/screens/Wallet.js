@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, StatusBar, Image, ActivityIndicator } from 'rea
 import { Slider, Card, ButtonGroup } from 'react-native-elements';
 import firebase from './../constants/firebase';
 
-export default class Wallet extends Component {
+class Wallet extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -14,8 +14,8 @@ export default class Wallet extends Component {
     this.updateWallet = this.updateWallet.bind(this)
   }
 
-  updateWallet(Wallet_Ballence){
-    this.setState({Wallet_Ballence})
+  updateWallet(Wallet_Ballence) {
+    this.setState({ Wallet_Ballence })
   }
 
   componentDidMount() {
@@ -27,8 +27,8 @@ export default class Wallet extends Component {
       var newuser = snapshot.val();
       console.log(newuser);
       if (newuser.account_balance < 100) {
-        this.setState({ successLoad: true });
         this.updateWallet(newuser.account_balance);
+        this.setState({ successLoad: true });
         console.log(newuser.account_balance, this.state.Wallet_Ballence)
       }
       else {
@@ -43,44 +43,51 @@ export default class Wallet extends Component {
 
   // viewing balance, history
   render() {
-    const {Wallet_Ballence} = this.state
     // console.log(this.state.Wallet_Ballence);
     if (!this.state.successLoad) {
       return (
-        <View>
+        <View style={{ flex: 1 }}>
           <StatusBar
-            translucent
             backgroundColor="#ffffff"
             barStyle="dark-content"
           />
-          <Image source={require('./../assets/Train05.png')} />
-          <ActivityIndicator size="large" color="blue" />
+          <View>
+            <Image source={require('./../assets/Train05.png')} />
+            <ActivityIndicator size="large" color="blue" />
+
+          </View>
+
         </View>
       );
     }
     else {
       return (
-        <View>
+        <View style={{ flex: 1 }}>
           <StatusBar
-            translucent
             backgroundColor="#ffffff"
             barStyle="dark-content"
           />
-          {/* <Card> */}
-            <Text>{this.state.Wallet_Ballence}</Text>
-            <Text>yyyyyyy</Text>
-          {/* </Card> */}
+          <View>
+            <Card>
+              <Text>{this.state.Wallet_Ballence}</Text>
+              <Text>yyyyyyy</Text>
+            </Card>
+          </View>
+
         </View>
       );
     }
   }
 }
 
+export default Wallet;
+
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    marginTop: 100,
+    flex: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
   },
 });
 

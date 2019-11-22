@@ -73,3 +73,93 @@ firebase.database().ref("fare/" + key1 + '/' + this.state.classVal + '/').on("va
         }, function (error) {
           console.log("Error: " + error.code);
         });
+
+
+
+        {
+          journey
+        }
+
+        import React, { Component } from 'react';
+import { View, StyleSheet,Picker} from 'react-native'
+
+const data=[
+  {"name":"stephen",
+  "id":"1234"},
+  {"name":"kate"},
+  {"name":"michael"}
+]
+export default class App extends Component {
+
+   render() {
+      return (
+         <View style={styles.container}>
+           <View style={{width:'60%',flexDirection: 'row',justifyContent: 'center'}}>
+             <Picker mode="dropdown" style={{ height:20, backgroundColor: 'white',width: '80%'}}>
+               {
+                 data.map((item) =>{
+                   return(
+                   <Picker.Item  label={item.name} value={item.name} key={item.name}/>
+                   );
+                 })
+               }
+             </Picker>
+           </View>
+         </View>
+      )
+   }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ddd'
+  },
+})
+
+
+export default class GenderDropdownComponent extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            dataSource: []
+        };
+    }
+    async get_firebase_list(){
+        var items = [];
+        firebase.database().ref('lists/gender').on('value', function(snapshot) {
+            snapshot.forEach(function(childSnapshot) {
+              var childKey = childSnapshot.key;
+              var childData = childSnapshot.val();
+              items.push(childData);
+            }); 
+            console.log("items_load: " + items);
+            return items;
+        });
+    }
+    async componentWillMount(){
+        this.setState({
+            dataSource : await this.get_firebase_list()
+        })
+        console.log("items: " + this.state.dataSource);
+    }
+
+    render() {
+        return (
+            <Picker
+                onValueChange={(itemValue, itemIndex) => this.setState({gender: itemValue})}>
+                {this.state.dataSource.map((item, index) => {
+                    return (<Picker.Item label={item} value={index} key={index}/>) 
+                })}
+            </Picker>
+        );
+    }
+}
+
+https://stackoverflow.com/questions/48971199/load-values-for-a-dropdown-menu-from-firebase
+
+https://aboutreact.com/react-native-datepicker/
+
+https://www.npmjs.com/package/react-native-numeric-input
