@@ -43,6 +43,7 @@ class Booking extends Component {
       classVal: 3,
       date: "15-05-2018",
       seats: 3,
+      halfseats: 3,
     };
     this.onDateChange = this.onDateChange.bind(this);
     this.getStationData1 = this.getStationData1.bind(this);
@@ -53,6 +54,9 @@ class Booking extends Component {
     this.getTime = this.getTime.bind(this);
     this.getclass = this.getclass.bind(this);
     this.updateClass = this.updateClass.bind(this);
+    this.setFullTicket = this.setFullTicket.bind(this);
+    this.setHalfTicket = this.setHalfTicket.bind(this);
+    this.setTotal = this.setTotal.bind(this);
   }
 
 
@@ -86,9 +90,31 @@ class Booking extends Component {
     this.setState({ data2 })
   }
 
+  setTotal() {
+
+  }
+
+  setHalfTicket(halfseats) {
+    this.setState({ halfseats })
+  }
+
+  setFullTicket(seats) {
+    this.setState({ seats })
+  }
+
   updateClass(classVal) {
     classVal = classVal + 1
     this.setState({ classVal })
+    var seats = this.state.seats
+    var ticketprice = this.state.selectedTime.classes
+    ticketprice.forEach((snap) => {
+      if (classVal == ticketprice.class) {
+        var halfTicketPrice = ticketprice.half.price
+        var fullTicketPrice = ticketprice.full.price
+        // var totalcost = seats*fullTicketPrice + halfseats*halfTicketPrice
+
+      }
+    })
   }
 
   componentDidMount() {
@@ -141,26 +167,40 @@ class Booking extends Component {
     })
   }
 
-  bookMyTrip = () =>{
+  bookMyTrip = () => {
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
     var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
     var yyyy = today.getFullYear();
     today = dd + '-' + mm + '-' + yyyy;
+    var ticketprice = '';
     var id = uuid();
     var seatNos = [];
-    let {classVal, date, seats, selectedTime} = this.state
+    let { classVal, date, seats, selectedTime } = this.state
+    var tickets = selectedTime.classes;
+    console.log(tickets);
+    // tickets.forEach((snap)=>{
+    //   if(snap.class == classVal){
+    //     ticketprice = snap.price
+    //   }
+    //   console.log(snap);
+    // })
+
+    // var cost = seats * ticketprice
+    // console.log('cost', cost);
+
+
     const usrid = firebase.auth().currentUser.uid
     // for(i=0; i<seats; i++){
     //   seatNos[i] = uuid();
     // }
-    
+
     console.log(this.state.classVal);
     console.log(this.state.date);
     console.log(this.state.seats);
     console.log(this.state.selectedTime.time);
     console.log(this.state.selectedTime.trainID);
-    firebase.database().ref("booked/" + usrid+'/'+id).set({
+    firebase.database().ref("booked/" + usrid + '/' + id).set({
       class: classVal,
       date: date,
       seats: seats,
@@ -168,11 +208,11 @@ class Booking extends Component {
       time: selectedTime.time,
       trainID: selectedTime.trainID,
       uid: id
-    }).catch(function(error){
+    }).catch(function (error) {
 
 
     })
-    
+
     // console.log(this.state.date);
     // console.log(this.state.date);
   }
@@ -211,6 +251,11 @@ class Booking extends Component {
             backgroundColor="#ffffff"
           />
           <ScrollView>
+            <Card title="Your Booking Details">
+
+
+            </Card>
+
             <Card title="Please select the starting station">
               <Picker mode="dropdown"
                 selectedValue={this.state.selectedStationStart}
@@ -306,23 +351,42 @@ class Booking extends Component {
             </Card>
 
 
-            <Card title="Seats Count">
-              <View style={{alignContent:"center", alignItems:"center", width:"100%"}}>
-              <NumericInput
-                value={this.state.seats}
-                onChange={seats => this.setState({ seats })}
-                onLimitReached={(isMax, msg) => console.log(isMax, msg)}
-                totalWidth={240}
-                totalHeight={60}
-                iconSize={20}
-                step={1}
-                minValue={1}
-                valueType='real'
-                textColor='black'
-                iconStyle={{ color: 'white' }}
-                rightButtonBackgroundColor='#2089dc'
-                leftButtonBackgroundColor='#2089dc' />
-                </View>
+            <Card title="Full Seats Count">
+              <View style={{ alignContent: "center", alignItems: "center", width: "100%" }}>
+                <NumericInput
+                  value={this.state.seats}
+                  onChange={seats => this.setState({ seats })}
+                  onLimitReached={(isMax, msg) => console.log(isMax, msg)}
+                  totalWidth={240}
+                  totalHeight={60}
+                  iconSize={20}
+                  step={1}
+                  minValue={1}
+                  valueType='real'
+                  textColor='black'
+                  iconStyle={{ color: 'white' }}
+                  rightButtonBackgroundColor='#2089dc'
+                  leftButtonBackgroundColor='#2089dc' />
+              </View>
+            </Card>
+
+            <Card title="Half Seats Count">
+              <View style={{ alignContent: "center", alignItems: "center", width: "100%" }}>
+                <NumericInput
+                  value={this.state.halfseats}
+                  onChange={halfseats => this.setState({ halfseats })}
+                  onLimitReached={(isMax, msg) => console.log(isMax, msg)}
+                  totalWidth={240}
+                  totalHeight={60}
+                  iconSize={20}
+                  step={1}
+                  minValue={1}
+                  valueType='real'
+                  textColor='black'
+                  iconStyle={{ color: 'white' }}
+                  rightButtonBackgroundColor='#2089dc'
+                  leftButtonBackgroundColor='#2089dc' />
+              </View>
             </Card>
             {/* get these inputs and save it to DB */}
             <TouchableHighlight
