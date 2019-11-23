@@ -94,7 +94,7 @@ export default class Login extends Component {
         />
         <View style={styles.txtContainer}>
           <TextInput
-            placeholder='PHONE NUMBER'
+            placeholder='E-mail'
             style={styles.textInput}
             placeholderTextColor='black'
             onChangeText={val => this.onChangeText('email', val)}

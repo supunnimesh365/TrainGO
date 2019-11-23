@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, ScrollView, StatusBar, Image, Picker, ActivityIndicator, TouchableHighlight } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, StatusBar, Image, Picker, ActivityIndicator, TouchableHighlight } from 'react-native';
 import { Slider, Card, ButtonGroup } from 'react-native-elements';
 import firebase from './../constants/firebase';
 import DatePicker from 'react-native-datepicker';
@@ -40,10 +40,15 @@ class Booking extends Component {
       data2: [],
       data3: [],
       data4: [],
-      classVal: 3,
+      classVal: '',
       date: "15-05-2018",
-      seats: 3,
-      halfseats: 3,
+      seats: 1,
+      halfseats: 0,
+      selector: true,
+      halfTicketPrice: 0,
+      fullTicketPrice: 0,
+      totalPrice: 0,
+      wallet: 0,
     };
     this.onDateChange = this.onDateChange.bind(this);
     this.getStationData1 = this.getStationData1.bind(this);
@@ -57,6 +62,7 @@ class Booking extends Component {
     this.setFullTicket = this.setFullTicket.bind(this);
     this.setHalfTicket = this.setHalfTicket.bind(this);
     this.setTotal = this.setTotal.bind(this);
+    this.setwallet = this.setwallet.bind(this);
   }
 
 
@@ -90,34 +96,51 @@ class Booking extends Component {
     this.setState({ data2 })
   }
 
-  setTotal() {
-
+  setTotal(totalPrice) {
+    this.setState({ totalPrice })
   }
 
-  setHalfTicket(halfseats) {
-    this.setState({ halfseats })
+  setwallet(wallet) {
+    this.setState({ wallet })
   }
 
-  setFullTicket(seats) {
-    this.setState({ seats })
+  setHalfTicket(halfTicketPrice) {
+    this.setState({ halfTicketPrice })
+  }
+
+  setFullTicket(fullTicketPrice) {
+    this.setState({ fullTicketPrice })
   }
 
   updateClass(classVal) {
+    this.setHalfTicket(0);
+    this.setFullTicket(0);
+    this.setTotal(0);
+    //this.setwallet(0);
+    let { halfseats, seats, wallet } = this.state
     classVal = classVal + 1
     this.setState({ classVal })
-    var seats = this.state.seats
+    // var seats = this.state.seats
     var ticketprice = this.state.selectedTime.classes
     ticketprice.forEach((snap) => {
-      if (classVal == ticketprice.class) {
-        var halfTicketPrice = ticketprice.half.price
-        var fullTicketPrice = ticketprice.full.price
-        // var totalcost = seats*fullTicketPrice + halfseats*halfTicketPrice
+      if (classVal == snap.class) {
+        var halfTicketPrice = snap.half.price
+        var fullTicketPrice = snap.full.price
+        this.setHalfTicket(halfTicketPrice);
+        this.setFullTicket(fullTicketPrice);
+        var totalcost = seats * fullTicketPrice + halfseats * halfTicketPrice;
+        //var balance = wallet - totalcost;
+        console.log('+++', totalcost);
+        this.setTotal(totalcost);
+        //this.setwallet(balance);
+        console.log(halfTicketPrice, fullTicketPrice, wallet);
 
       }
     })
   }
 
   componentDidMount() {
+    // this.updateClass();
     var items = []
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
@@ -138,6 +161,15 @@ class Booking extends Component {
     }, function (error) {
       console.log("Error:" + error.code);
     })
+    firebase.database().ref('users/' + this.state.usrid).on("value", (snapshot) => {
+      var childwall = snapshot.val()
+      console.log('--', childwall.account_balance)
+      this.setwallet(childwall.account_balance);
+    },
+      function (error) {
+        console.log("Error:" + error.code);
+      })
+
 
   }
 
@@ -146,6 +178,7 @@ class Booking extends Component {
   }
 
   getAvailableTrains = () => {
+
     //get trains
     //times show
     //update booked
@@ -159,6 +192,13 @@ class Booking extends Component {
         items.push(childData);
       })
       this.getTime(items);
+      console.log(items);
+      if (items.length == 0) {
+        //Alert
+      }
+      else {
+        this.setState({ selector: false })
+      }
       // this.getclass(items);
       // console.log(details);
       //this.setState({ stations: details });
@@ -173,45 +213,55 @@ class Booking extends Component {
     var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
     var yyyy = today.getFullYear();
     today = dd + '-' + mm + '-' + yyyy;
+
     var ticketprice = '';
     var id = uuid();
     var seatNos = [];
-    let { classVal, date, seats, selectedTime } = this.state
+    let { classVal, date, seats, selectedTime, usrid, wallet, halfseats, totalPrice } = this.state
     var tickets = selectedTime.classes;
-    console.log(tickets);
-    // tickets.forEach((snap)=>{
-    //   if(snap.class == classVal){
-    //     ticketprice = snap.price
-    //   }
-    //   console.log(snap);
-    // })
+    if (today < date) {
+      console.log(tickets);
+      console.log(this.state.classVal);
+      console.log(this.state.date);
+      console.log(this.state.seats);
+      console.log(this.state.selectedTime.time);
+      console.log(this.state.wallet);
+      console.log(this.state.totalPrice);
+      var balance = wallet - totalPrice
+      console.log(balance);
+      firebase.database().ref("booked/" + usrid + '/' + id).set({
+        class: classVal,
+        date: date,
+        fullseats: seats,
+        halfseats: halfseats,
+        status: 1,
+        time: selectedTime.time,
+        trainID: selectedTime.trainID,
+        uid: id
+      })
+      firebase.database().ref('users/' + usrid).update({
+        account_balance: balance
+      })
+      Alert.alert(
+        'Confirmation',
+        'You have successfully booked a Ticket, Please visit Drawer booking section to view',
+        [
+          { text: 'OK', onPress: () => console.log('OK Pressed') },
+        ],
+        { cancelable: false },
+      );
+      this.setState({ selector: true });
+    }
+    else {
+      Alert.alert(
+        'Warning',
+        'You have selected a previous date, please select future date',
+        [
+          { text: 'OK', onPress: () => console.log('OK Pressed') },
+        ],
+        { cancelable: false },
+    }
 
-    // var cost = seats * ticketprice
-    // console.log('cost', cost);
-
-
-    const usrid = firebase.auth().currentUser.uid
-    // for(i=0; i<seats; i++){
-    //   seatNos[i] = uuid();
-    // }
-
-    console.log(this.state.classVal);
-    console.log(this.state.date);
-    console.log(this.state.seats);
-    console.log(this.state.selectedTime.time);
-    console.log(this.state.selectedTime.trainID);
-    firebase.database().ref("booked/" + usrid + '/' + id).set({
-      class: classVal,
-      date: date,
-      seats: seats,
-      status: 1,
-      time: selectedTime.time,
-      trainID: selectedTime.trainID,
-      uid: id
-    }).catch(function (error) {
-
-
-    })
 
     // console.log(this.state.date);
     // console.log(this.state.date);
@@ -252,148 +302,164 @@ class Booking extends Component {
           />
           <ScrollView>
             <Card title="Your Booking Details">
+              <Text>Date:{this.state.date}</Text>
+              <Text>From:{this.state.selectedStationStart}</Text>
+              <Text>To:{this.state.selectedStationEnd}</Text>
+              <Text>Class:{this.state.classVal}</Text>
+              <Text>Price: Full:{this.state.fullTicketPrice}</Text>
+              <Text>Price: Half:{this.state.halfTicketPrice}</Text>
+              <Text>Tickets: Full: {this.state.seats}|Half:{this.state.halfseats}</Text>
+              <Text>Total Cost: {this.state.totalPrice}</Text>
 
-
+              {!this.state.selector ?
+                <TouchableHighlight
+                  onPress={this.bookMyTrip}
+                  style={styles.button}>
+                  <Text style={styles.buttontxt}>Book My Trip</Text>
+                </TouchableHighlight>
+                : <Text>First Get Available Trains to Continue with your Booking</Text>}
             </Card>
 
-            <Card title="Please select the starting station">
-              <Picker mode="dropdown"
-                selectedValue={this.state.selectedStationStart}
-                onValueChange={(itemValue) =>
-                  this.selectStart(itemValue)
-                }
-              >
-                {
-                  data1.map((item) => {
-                    return (
-                      <Picker.Item label={item.name} value={item.name + item.id} key={item.name} />
-                    );
-                  })
-                }
-              </Picker>
-            </Card>
+            {this.state.selector ?
+              <ScrollView>
+                <Card title="Please select the starting station">
+                  <Picker mode="dropdown"
+                    selectedValue={this.state.selectedStationStart}
+                    onValueChange={(itemValue) =>
+                      this.selectStart(itemValue)
+                    }
+                  >
+                    {
+                      data1.map((item) => {
+                        return (
+                          <Picker.Item label={item.name} value={item.name + item.id} key={item.name} />
+                        );
+                      })
+                    }
+                  </Picker>
+                </Card>
 
-            <Card title="Please select the ending station">
-              <Picker mode="dropdown"
-                selectedValue={this.state.selectedStationEnd}
-                onValueChange={(itemValue) =>
-                  this.selectEnd(itemValue)
-                }
-              >
-                {
-                  data2.map((item) => {
-                    return (
-                      <Picker.Item label={item.name} value={item.name + item.id} key={item.name} />
-                    );
-                  })
-                }
-              </Picker>
-            </Card>
+                <Card title="Please select the ending station">
+                  <Picker mode="dropdown"
+                    selectedValue={this.state.selectedStationEnd}
+                    onValueChange={(itemValue) =>
+                      this.selectEnd(itemValue)
+                    }
+                  >
+                    {
+                      data2.map((item) => {
+                        return (
+                          <Picker.Item label={item.name} value={item.name + item.id} key={item.name} />
+                        );
+                      })
+                    }
+                  </Picker>
+                </Card>
 
-            <TouchableHighlight
-              onPress={this.getAvailableTrains}
-              style={styles.button}>
-              <Text style={styles.buttontxt}>Get available trains</Text>
-            </TouchableHighlight>
-
-
-            <Card title="Select the date">
-              <DatePicker
-                style={{ width: '100%' }}
-                date={this.state.date} //initial date from state
-                mode="date" //The enum of date, datetime and time
-                placeholder="select date"
-                format="DD-MM-YYYY"
-                minDate="01-01-2016"
-                maxDate="01-01-2020"
-                confirmBtnText="Confirm"
-                cancelBtnText="Cancel"
-                customStyles={{
-                  dateIcon: {
-                    position: 'absolute',
-                    left: 0,
-                    top: 4,
-                    marginLeft: 0
-                  },
-                  dateInput: {
-                    marginLeft: 36
-                  }
-                }}
-                onDateChange={(date) => { this.setState({ date: date }) }}
-              />
-            </Card>
-
-            <Card title="Select the time">
-              <Picker mode="dropdown"
-                selectedValue={this.state.selectedTime}
-                onValueChange={(itemValue) =>
-                  this.selectTime(itemValue)
-                }
-
-              >
-                {
-                  data3.map((item) => {
-                    return (
-                      <Picker.Item label={item.time} value={item} key={item.time} />
-                    );
-                  })
-                }
-              </Picker>
-            </Card>
-
-            <Card title="Select the Class">
-              <ButtonGroup
-                onPress={this.updateClass}
-                selectedIndex={classVal - 1}
-                buttons={classes}
-                containerStyle={{ height: 65 }}
-              />
-            </Card>
+                <TouchableHighlight
+                  onPress={this.getAvailableTrains}
+                  style={styles.button}>
+                  <Text style={styles.buttontxt}>Get available trains</Text>
+                </TouchableHighlight>
+              </ScrollView> : <ScrollView></ScrollView>}
 
 
-            <Card title="Full Seats Count">
-              <View style={{ alignContent: "center", alignItems: "center", width: "100%" }}>
-                <NumericInput
-                  value={this.state.seats}
-                  onChange={seats => this.setState({ seats })}
-                  onLimitReached={(isMax, msg) => console.log(isMax, msg)}
-                  totalWidth={240}
-                  totalHeight={60}
-                  iconSize={20}
-                  step={1}
-                  minValue={1}
-                  valueType='real'
-                  textColor='black'
-                  iconStyle={{ color: 'white' }}
-                  rightButtonBackgroundColor='#2089dc'
-                  leftButtonBackgroundColor='#2089dc' />
-              </View>
-            </Card>
+            {!this.state.selector ?
+              <ScrollView>
+                <Card title="Select the date">
+                  <DatePicker
+                    style={{ width: '100%' }}
+                    date={this.state.date} //initial date from state
+                    mode="date" //The enum of date, datetime and time
+                    placeholder="select date"
+                    format="DD-MM-YYYY"
+                    minDate="01-01-2016"
+                    maxDate="01-01-2020"
+                    confirmBtnText="Confirm"
+                    cancelBtnText="Cancel"
+                    customStyles={{
+                      dateIcon: {
+                        position: 'absolute',
+                        left: 0,
+                        top: 4,
+                        marginLeft: 0
+                      },
+                      dateInput: {
+                        marginLeft: 36
+                      }
+                    }}
+                    onDateChange={(date) => { this.setState({ date: date }) }}
+                  />
+                </Card>
 
-            <Card title="Half Seats Count">
-              <View style={{ alignContent: "center", alignItems: "center", width: "100%" }}>
-                <NumericInput
-                  value={this.state.halfseats}
-                  onChange={halfseats => this.setState({ halfseats })}
-                  onLimitReached={(isMax, msg) => console.log(isMax, msg)}
-                  totalWidth={240}
-                  totalHeight={60}
-                  iconSize={20}
-                  step={1}
-                  minValue={1}
-                  valueType='real'
-                  textColor='black'
-                  iconStyle={{ color: 'white' }}
-                  rightButtonBackgroundColor='#2089dc'
-                  leftButtonBackgroundColor='#2089dc' />
-              </View>
-            </Card>
-            {/* get these inputs and save it to DB */}
-            <TouchableHighlight
-              onPress={this.bookMyTrip}
-              style={styles.button}>
-              <Text style={styles.buttontxt}>Book My Trip</Text>
-            </TouchableHighlight>
+                <Card title="Select the time">
+                  <Picker mode="dropdown"
+                    selectedValue={this.state.selectedTime}
+                    onValueChange={(itemValue) =>
+                      this.selectTime(itemValue)
+                    }
+
+                  >
+                    {
+                      data3.map((item) => {
+                        return (
+                          <Picker.Item label={item.time} value={item} key={item.time} />
+                        );
+                      })
+                    }
+                  </Picker>
+                </Card>
+
+                <Card title="Select the Class">
+                  <ButtonGroup
+                    onPress={this.updateClass}
+                    selectedIndex={classVal - 1}
+                    buttons={classes}
+                    containerStyle={{ height: 65 }}
+                  />
+                </Card>
+
+
+                <Card title="Full Seats Count">
+                  <View style={{ alignContent: "center", alignItems: "center", width: "100%" }}>
+                    <NumericInput
+                      value={this.state.seats}
+                      onChange={seats => this.setState({ seats })}
+                      onLimitReached={(isMax, msg) => console.log(isMax, msg)}
+                      totalWidth={240}
+                      totalHeight={60}
+                      iconSize={20}
+                      step={1}
+                      minValue={1}
+                      valueType='real'
+                      textColor='black'
+                      iconStyle={{ color: 'white' }}
+                      rightButtonBackgroundColor='#2089dc'
+                      leftButtonBackgroundColor='#2089dc' />
+                  </View>
+                </Card>
+
+                <Card title="Half Seats Count">
+                  <View style={{ alignContent: "center", alignItems: "center", width: "100%" }}>
+                    <NumericInput
+                      value={this.state.halfseats}
+                      onChange={halfseats => this.setState({ halfseats })}
+                      onLimitReached={(isMax, msg) => console.log(isMax, msg)}
+                      totalWidth={240}
+                      totalHeight={60}
+                      iconSize={20}
+                      step={1}
+                      minValue={1}
+                      valueType='real'
+                      textColor='black'
+                      iconStyle={{ color: 'white' }}
+                      rightButtonBackgroundColor='#2089dc'
+                      leftButtonBackgroundColor='#2089dc' />
+                  </View>
+                </Card>
+                {/* get these inputs and save it to DB */}
+
+              </ScrollView> : <ScrollView></ScrollView>}
             {/* my bookings new page */}
           </ScrollView>
 

@@ -42,11 +42,23 @@ class Home extends Component {
       passengersCountHalf: 1,
       successLoad: false,
       tripID: uuid(),
-      usrid: firebase.auth().currentUser.uid
+      usrid: firebase.auth().currentUser.uid,
+      total: 0,
+      balance: 0,
     };
     this.updateClass = this.updateClass.bind(this)
     this.updateFull = this.updateFull.bind(this)
     this.updateHalf = this.updateHalf.bind(this)
+    this.updateBalance = this.updateBalance.bind(this)
+    this.updateTotal = this.updateTotal.bind(this)
+  }
+
+  updateBalance(balance) {
+    this.setState({ balance })
+  }
+
+  updateTotal(total) {
+    this.setState({ total })
   }
 
   updateFull(passengersCount) {
@@ -83,7 +95,7 @@ class Home extends Component {
       console.log("4", newuser.account_balance);
       if (newuser.account_balance < 100) {
         Alert.alert(
-          'Reminder==',
+          'Reminder',
           'Your account is on LOW BALANCE' + this.state.Wallet_Balance + ', please recharge',
           [
             { text: 'OK', onPress: () => console.log('OK Pressed') },
@@ -192,8 +204,8 @@ class Home extends Component {
               }
               else {
                 Alert.alert(
-                  'Warning',
-                  'This is not a correct QR code',
+                  'Reminder',
+                  'You have successfully completed your trip',
                   [
                     { text: 'OK', onPress: () => console.log('OK Pressed') },
                   ],
@@ -201,6 +213,8 @@ class Home extends Component {
                 );
                 console.log(this.state.Wallet_Balance);
                 console.log('Total Fare', totFare, 'Balance Fare', balFare);
+                this.updateTotal(totFare);
+                this.updateBalance(balFare);
               }
               let { Start_Station, Start_Station_Name, End_Station, End_Station_Name, classVal, usrid, passengersCount, passengersCountHalf } = this.state;
 
@@ -220,6 +234,15 @@ class Home extends Component {
               firebase.database().ref('users/' + usrid).update({
                 account_balance: balFare
               })
+              // Alert.alert(
+              //   'Payment',
+              //   'Your Total Cost for Trip is'+totFare,
+              //   [
+              //     { text: 'OK', onPress: () => console.log('OK Pressed') },
+              //   ],
+              //   { cancelable: false },
+              // );
+
             });
           }
           else {
@@ -248,8 +271,8 @@ class Home extends Component {
             }
             else {
               Alert.alert(
-                'Warning',
-                'This is not a correct QR code',
+                'Reminder',
+                'You have successfully completed your trip',
                 [
                   { text: 'OK', onPress: () => console.log('OK Pressed') },
                 ],
@@ -257,6 +280,8 @@ class Home extends Component {
               );
               console.log(this.state.Wallet_Balance);
               console.log('Total Fare', totFare, 'Balance Fare', balFare);
+              this.updateTotal(totFare);
+              this.updateBalance(balFare);
             }
             let { Start_Station, Start_Station_Name, End_Station, End_Station_Name, classVal, usrid, passengersCount, passengersCountHalf } = this.state;
 
@@ -300,8 +325,8 @@ class Home extends Component {
     // reduce prive and display tick mark
   }
 
-  backtoMain = () =>{
-    this.setState({ 
+  backtoMain = () => {
+    this.setState({
       QR_Code_Value: '',
       Start_Scanner: false,
       Start_Station: '',
@@ -466,11 +491,13 @@ class Home extends Component {
       return (
         <View style={styles.txtContainer}>
           <Card title="You have completed the journey">
+            <Text>Your Cost Was:{this.state.total}</Text>
+            <Text>Your Remaining Balance is:{this.state.balance}</Text>
             <TouchableOpacity
               onPress={this.backtoMain}
               style={styles.button}>
               <Text style={styles.buttontxt}>
-                Pay Now
+                Back To Scanner
                 </Text>
             </TouchableOpacity>
           </Card>
