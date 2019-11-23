@@ -481,7 +481,6 @@ class Home extends Component {
       return (
         <View>
           <StatusBar
-            translucent
             backgroundColor="#ffffff"
             barStyle="dark-content"
           />

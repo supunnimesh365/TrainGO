@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, StatusBar, Image, Picker, ActivityIndicator, TouchableHighlight } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, StatusBar, Image, Picker, ActivityIndicator, TouchableHighlight } from 'react-native';
 import { Slider, Card, ButtonGroup } from 'react-native-elements';
 import firebase from './../constants/firebase';
 import DatePicker from 'react-native-datepicker';
+import NumericInput from 'react-native-numeric-input'
+import uuid from 'uuid-random';
+
+
 //import { TouchableHighlight } from 'react-native-gesture-handler';
 // import CalendarPicker from 'react-native-calendar-picker';
 // const data = [
@@ -37,7 +41,8 @@ class Booking extends Component {
       data3: [],
       data4: [],
       classVal: 3,
-      date: "15-05-2018"
+      date: "15-05-2018",
+      seats: 3,
     };
     this.onDateChange = this.onDateChange.bind(this);
     this.getStationData1 = this.getStationData1.bind(this);
@@ -47,6 +52,7 @@ class Booking extends Component {
     this.selectTime = this.selectTime.bind(this);
     this.getTime = this.getTime.bind(this);
     this.getclass = this.getclass.bind(this);
+    this.updateClass = this.updateClass.bind(this);
   }
 
 
@@ -135,6 +141,42 @@ class Booking extends Component {
     })
   }
 
+  bookMyTrip = () =>{
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+    today = dd + '-' + mm + '-' + yyyy;
+    var id = uuid();
+    var seatNos = [];
+    let {classVal, date, seats, selectedTime} = this.state
+    const usrid = firebase.auth().currentUser.uid
+    // for(i=0; i<seats; i++){
+    //   seatNos[i] = uuid();
+    // }
+    
+    console.log(this.state.classVal);
+    console.log(this.state.date);
+    console.log(this.state.seats);
+    console.log(this.state.selectedTime.time);
+    console.log(this.state.selectedTime.trainID);
+    firebase.database().ref("booked/" + usrid+'/'+id).set({
+      class: classVal,
+      date: date,
+      seats: seats,
+      status: 1,
+      time: selectedTime.time,
+      trainID: selectedTime.trainID,
+      uid: id
+    }).catch(function(error){
+
+
+    })
+    
+    // console.log(this.state.date);
+    // console.log(this.state.date);
+  }
+
   onDateChange(date) {
     this.setState({
       selectedStartDate: date,
@@ -146,21 +188,18 @@ class Booking extends Component {
     const { selectedStartDate } = this.state;
     const { data1, data2, data3, data4 } = this.state;
     const classes = ['class1', 'class2', 'class3']
+    const { classVal } = this.state
     // console.log('-------',this.state.data1)
     const startDate = selectedStartDate ? selectedStartDate.toString() : '';
     if (!this.state.successLoad) {
       return (
-        <View style={{ flex: 1 }}>
+        <View>
           <StatusBar
             backgroundColor="#ffffff"
             barStyle="dark-content"
           />
-          <View>
-            <Image source={require('./../assets/Train05.png')} />
-            <ActivityIndicator size="large" color="blue" />
-
-          </View>
-
+          <Image source={require('./../assets/Train05.png')} />
+          <ActivityIndicator size="large" color="blue" />
         </View>
       );
     }
@@ -171,41 +210,40 @@ class Booking extends Component {
             barStyle="dark-content"
             backgroundColor="#ffffff"
           />
-          <View>
-            <Text>Please select the starting station</Text>
-            <Picker mode="dropdown"
-              selectedValue={this.state.selectedStationStart}
-              onValueChange={(itemValue) =>
-                this.selectStart(itemValue)
-              }
-            >
-              {
-                data1.map((item) => {
-                  return (
-                    <Picker.Item label={item.name} value={item.name + item.id} key={item.name} />
-                  );
-                })
-              }
-            </Picker>
+          <ScrollView>
+            <Card title="Please select the starting station">
+              <Picker mode="dropdown"
+                selectedValue={this.state.selectedStationStart}
+                onValueChange={(itemValue) =>
+                  this.selectStart(itemValue)
+                }
+              >
+                {
+                  data1.map((item) => {
+                    return (
+                      <Picker.Item label={item.name} value={item.name + item.id} key={item.name} />
+                    );
+                  })
+                }
+              </Picker>
+            </Card>
 
-            <Text>Please select the ending station</Text>
-
-            <Picker mode="dropdown"
-              selectedValue={this.state.selectedStationEnd}
-              onValueChange={(itemValue) =>
-                this.selectEnd(itemValue)
-              }
-
-            >
-              {
-                data2.map((item) => {
-                  return (
-                    <Picker.Item label={item.name} value={item.name + item.id} key={item.name} />
-                  );
-                })
-              }
-            </Picker>
-
+            <Card title="Please select the ending station">
+              <Picker mode="dropdown"
+                selectedValue={this.state.selectedStationEnd}
+                onValueChange={(itemValue) =>
+                  this.selectEnd(itemValue)
+                }
+              >
+                {
+                  data2.map((item) => {
+                    return (
+                      <Picker.Item label={item.name} value={item.name + item.id} key={item.name} />
+                    );
+                  })
+                }
+              </Picker>
+            </Card>
 
             <TouchableHighlight
               onPress={this.getAvailableTrains}
@@ -213,62 +251,87 @@ class Booking extends Component {
               <Text style={styles.buttontxt}>Get available trains</Text>
             </TouchableHighlight>
 
-            <Text>Select the date</Text>
-            <DatePicker
-              style={{ width: 200 }}
-              date={this.state.date} //initial date from state
-              mode="date" //The enum of date, datetime and time
-              placeholder="select date"
-              format="DD-MM-YYYY"
-              minDate="01-01-2016"
-              maxDate="01-01-2020"
-              confirmBtnText="Confirm"
-              cancelBtnText="Cancel"
-              customStyles={{
-                dateIcon: {
-                  position: 'absolute',
-                  left: 0,
-                  top: 4,
-                  marginLeft: 0
-                },
-                dateInput: {
-                  marginLeft: 36
+
+            <Card title="Select the date">
+              <DatePicker
+                style={{ width: '100%' }}
+                date={this.state.date} //initial date from state
+                mode="date" //The enum of date, datetime and time
+                placeholder="select date"
+                format="DD-MM-YYYY"
+                minDate="01-01-2016"
+                maxDate="01-01-2020"
+                confirmBtnText="Confirm"
+                cancelBtnText="Cancel"
+                customStyles={{
+                  dateIcon: {
+                    position: 'absolute',
+                    left: 0,
+                    top: 4,
+                    marginLeft: 0
+                  },
+                  dateInput: {
+                    marginLeft: 36
+                  }
+                }}
+                onDateChange={(date) => { this.setState({ date: date }) }}
+              />
+            </Card>
+
+            <Card title="Select the time">
+              <Picker mode="dropdown"
+                selectedValue={this.state.selectedTime}
+                onValueChange={(itemValue) =>
+                  this.selectTime(itemValue)
                 }
-              }}
-              onDateChange={(date) => { this.setState({ date: date }) }}
-            />
-            <Text>Select the time</Text>
 
-            <Picker mode="dropdown"
-              selectedValue={this.state.selectedTime}
-              onValueChange={(itemValue) =>
-                this.selectTime(itemValue)
-              }
+              >
+                {
+                  data3.map((item) => {
+                    return (
+                      <Picker.Item label={item.time} value={item} key={item.time} />
+                    );
+                  })
+                }
+              </Picker>
+            </Card>
 
-            >
-              {
-                data3.map((item) => {
-                  return (
-                    <Picker.Item label={item.time} value={item} key={item.time} />
-                  );
-                })
-              }
-            </Picker>
+            <Card title="Select the Class">
+              <ButtonGroup
+                onPress={this.updateClass}
+                selectedIndex={classVal - 1}
+                buttons={classes}
+                containerStyle={{ height: 65 }}
+              />
+            </Card>
 
-            <Text>Select the Class</Text>
 
-            <ButtonGroup
-              onPress={this.updateClass}
-              selectedIndex={classVal - 1}
-              buttons={classes}
-              containerStyle={{ height: 65 }}
-            />
-
-            <Text>Seats</Text>
-
+            <Card title="Seats Count">
+              <View style={{alignContent:"center", alignItems:"center", width:"100%"}}>
+              <NumericInput
+                value={this.state.seats}
+                onChange={seats => this.setState({ seats })}
+                onLimitReached={(isMax, msg) => console.log(isMax, msg)}
+                totalWidth={240}
+                totalHeight={60}
+                iconSize={20}
+                step={1}
+                minValue={1}
+                valueType='real'
+                textColor='black'
+                iconStyle={{ color: 'white' }}
+                rightButtonBackgroundColor='#2089dc'
+                leftButtonBackgroundColor='#2089dc' />
+                </View>
+            </Card>
             {/* get these inputs and save it to DB */}
+            <TouchableHighlight
+              onPress={this.bookMyTrip}
+              style={styles.button}>
+              <Text style={styles.buttontxt}>Book My Trip</Text>
+            </TouchableHighlight>
             {/* my bookings new page */}
-          </View>
+          </ScrollView>
 
         </View>
       )
@@ -293,6 +356,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 35,
     alignItems: 'center',
+    margin: 10,
     justifyContent: 'center',
   },
   buttontxt: {

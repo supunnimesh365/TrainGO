@@ -70,7 +70,6 @@ class Wallet extends Component {
           <View>
             <Card>
               <Text>{this.state.Wallet_Ballence}</Text>
-              <Text>yyyyyyy</Text>
             </Card>
           </View>
 
