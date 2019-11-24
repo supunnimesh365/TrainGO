@@ -61,22 +61,6 @@ export default class Login extends Component {
           { cancelable: false },
         ))
     }
-
-    // if(this.state.errorMessage == null)
-    // console.log(this.state.errorMessage);
-    // if(this.state.errorMessage == ''){
-
-    // }else{
-    //   Alert.alert(
-    //     'Error',
-    //     this.state.errorMessage,
-    //     [
-    //       {text: 'OK', onPress: () => console.log('OK Pressed')},
-    //     ],
-    //     {cancelable: false},
-    //   );
-    //   this.setState({ errorMessage: '' })
-    // }
   }
 
 

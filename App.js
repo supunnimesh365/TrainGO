@@ -23,6 +23,7 @@ import { Block } from './app/components';
 import Icon1 from 'react-native-vector-icons/AntDesign'
 import Splash from './app/screens/Splash';
 import Login from './app/screens/Login';
+import Browse from './app/screens/Browse';
 import firebase from './app/constants/firebase';
 
 
@@ -105,6 +106,7 @@ const DashboardTabNavigator = createMaterialBottomTabNavigator(
 
 const DashboardStackNavigator = createStackNavigator({
   DashboardTabNavigator : DashboardTabNavigator
+
 },{
   defaultNavigationOptions:({navigation})=>{
     return{
@@ -120,6 +122,9 @@ const AppDrawerNavigator = createDrawerNavigator({
   Dashboard:{
     screen:DashboardStackNavigator
   },
+  Browse:{
+    screen:Browse
+  }
   // Signup:{
   //   screen:Signup
   // }
@@ -130,7 +135,9 @@ const AppSwitchNavigator = createSwitchNavigator({
   Welcome:{screen:WelcomeScreen},
   Dashboard1:{screen:AppDrawerNavigator},
   Signup:{screen:Signup},
-  Login:{screen:Login}
+  Login:{screen:Login},
+  Dashboard:{screen:DashboardStackNavigator},
+  Browse:{screen:Browse}
 });
 
 

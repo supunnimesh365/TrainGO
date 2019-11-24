@@ -39,7 +39,7 @@ class Home extends Component {
       changeVal: true,
       classVal: 3,
       passengersCount: 1,
-      passengersCountHalf: 1,
+      passengersCountHalf: 0,
       successLoad: false,
       tripID: uuid(),
       usrid: firebase.auth().currentUser.uid,
@@ -67,7 +67,7 @@ class Home extends Component {
   }
 
   updateHalf(passengersCountHalf) {
-    passengersCountHalf = passengersCountHalf + 1
+    passengersCountHalf = passengersCountHalf
     this.setState({ passengersCountHalf })
   }
   updateClass(classVal) {
@@ -135,6 +135,7 @@ class Home extends Component {
 
 
   onQR_Code_Scan_Done = (QR_Code) => {
+    this.componentDidMount();
     if (!QR_Code.startsWith('{')) {
       Alert.alert(
         'Warning',
@@ -178,12 +179,18 @@ class Home extends Component {
           if (fare == null) {
             firebase.database().ref("fare/" + key2 + '/' + this.state.classVal + '/').on("value", (snapshot) => {
               var fare = snapshot.val();
-              console.log(fare)
+              console.log(fare, this.state.Wallet_Balance, '------')
               const totFare = this.state.passengersCount * fare.full + this.state.passengersCountHalf * fare.half;
               const balFare = this.state.Wallet_Balance - totFare;
+              console.log('2balFare', balFare, totFare)
+              console.log(this.state.Wallet_Balance);
+              console.log('Total Fare', totFare, 'Balance Fare', balFare);
+              this.updateTotal(totFare);
+              this.updateBalance(balFare);
+              //fare.full and fare.half to state
               if (balFare < 0) {
                 Alert.alert(
-                  'Reminder',
+                  'Reminder4',
                   'Your balance is now minus value, To continue with the service PLEASE RECHARGE now',
                   [
                     { text: 'OK', onPress: () => console.log('OK Pressed') },
@@ -194,7 +201,7 @@ class Home extends Component {
               }
               else if (balFare < 100) {
                 Alert.alert(
-                  'Reminder',
+                  'Reminder5',
                   'Your balance is less than Rs.100, To continue the service PLEASE RECHARGE soon ',
                   [
                     { text: 'OK', onPress: () => console.log('OK Pressed') },
@@ -204,17 +211,14 @@ class Home extends Component {
               }
               else {
                 Alert.alert(
-                  'Reminder',
+                  'Reminder6',
                   'You have successfully completed your trip',
                   [
                     { text: 'OK', onPress: () => console.log('OK Pressed') },
                   ],
                   { cancelable: false },
                 );
-                console.log(this.state.Wallet_Balance);
-                console.log('Total Fare', totFare, 'Balance Fare', balFare);
-                this.updateTotal(totFare);
-                this.updateBalance(balFare);
+
               }
               let { Start_Station, Start_Station_Name, End_Station, End_Station_Name, classVal, usrid, passengersCount, passengersCountHalf } = this.state;
 
@@ -248,9 +252,14 @@ class Home extends Component {
           else {
             const totFare = this.state.passengersCount * fare.full + this.state.passengersCountHalf * fare.half;
             const balFare = this.state.Wallet_Balance - totFare;
+            console.log('1balFare', balFare, totFare)
+            console.log(this.state.Wallet_Balance);
+            console.log('Total Fare', totFare, 'Balance Fare', balFare);
+            this.updateTotal(totFare);
+            this.updateBalance(balFare);
             if (balFare < 0) {
               Alert.alert(
-                'Reminder',
+                'Reminder1',
                 'Your balance is now minus value, To continue with the service PLEASE RECHARGE now',
                 [
                   { text: 'OK', onPress: () => console.log('OK Pressed') },
@@ -261,7 +270,7 @@ class Home extends Component {
             }
             else if (balFare < 100) {
               Alert.alert(
-                'Reminder',
+                'Reminder2',
                 'Your balance is less than Rs.100, To continue the service PLEASE RECHARGE soon ',
                 [
                   { text: 'OK', onPress: () => console.log('OK Pressed') },
@@ -271,17 +280,14 @@ class Home extends Component {
             }
             else {
               Alert.alert(
-                'Reminder',
+                'Reminder3',
                 'You have successfully completed your trip',
                 [
                   { text: 'OK', onPress: () => console.log('OK Pressed') },
                 ],
                 { cancelable: false },
               );
-              console.log(this.state.Wallet_Balance);
-              console.log('Total Fare', totFare, 'Balance Fare', balFare);
-              this.updateTotal(totFare);
-              this.updateBalance(balFare);
+
             }
             let { Start_Station, Start_Station_Name, End_Station, End_Station_Name, classVal, usrid, passengersCount, passengersCountHalf } = this.state;
 
@@ -339,10 +345,12 @@ class Home extends Component {
       uid: '',
       Wallet_Balance: 0,
       date: '',
+      total: 0,
+      balance: 0,
       changeVal: true,
       classVal: 3,
       passengersCount: 1,
-      passengersCountHalf: 1,
+      passengersCountHalf: 0,
       successLoad: false,
       tripID: uuid(),
       usrid: firebase.auth().currentUser.uid
@@ -402,7 +410,7 @@ class Home extends Component {
 
   render() {
     const classes = ['Class 1', 'Class 2', 'Class 3']
-    const halves = ['1', '2', '3', '4', '5', '6']
+    const halves = ['0', '1', '2', '3', '4', '5', '6']
     const full = ['1', '2', '3', '4', '5', '6']
     const { classVal } = this.state
     const { passengersCount } = this.state

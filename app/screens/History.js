@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text } from 'react-native';
 
-class Settings extends Component {
+class History extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -15,10 +15,10 @@ class Settings extends Component {
   render() {
     return (
       <View>
-        <Text> Settings </Text>
+        <Text> History </Text>
       </View>
     );
   }
 }
 
-export default Settings;
+export default History;
