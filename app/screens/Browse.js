@@ -12,7 +12,7 @@ class Browse extends Component {
       booking: [],
       successLoad: false,
       QRload: false,
-      idVal: ''
+      idVal: []
     };
     this.getBookings = this.getBookings.bind(this);
     this.setQRloadStatus = this.setQRloadStatus.bind(this);
@@ -48,7 +48,13 @@ class Browse extends Component {
 
   getQR(data) {
     console.log(data);
-    this.setQR(data);
+    //userid
+    var data1 = {
+      "uid":this.state.usrid,
+      "bookid":data
+    }
+    data1 = JSON.stringify(data1);
+    this.setQR(data1);
     this.setQRloadStatus(true);
   }
 
@@ -129,7 +135,7 @@ class Browse extends Component {
           <TouchableHighlight
             onPress={()=>this.backtoView()}
             style={styles.button}>
-            <Text style={styles.buttontxt}>View QR to confirm</Text>
+            <Text style={styles.buttontxt}>Back to View</Text>
           </TouchableHighlight>
         </View>
       )
