@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Alert, TextInput, StyleSheet, Dimensions, TouchableOpacity, Image, StatusBar } from 'react-native';
+import { View, Text, Alert, TextInput, StyleSheet, Dimensions,ActivityIndicator, TouchableOpacity, Image, StatusBar } from 'react-native';
 //import { TouchableOpacity } from 'react-native-gesture-handler';
 import firebase from './../constants/firebase';
 
@@ -13,7 +13,8 @@ export default class Login extends Component {
       email: '',
       password: '',
       errorMessage: '',
-      success: false
+      success: false,
+      loading: false
     };
   }
 
@@ -22,6 +23,7 @@ export default class Login extends Component {
   }
 
   Login = () => {
+    this.setState({ loading: true })
     const { email, password } = this.state
     let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     console.log(email, password);
@@ -65,39 +67,54 @@ export default class Login extends Component {
 
 
   render() {
-    return (
-      <View style={styles.container}>
-        <View style={{ ...StyleSheet.absoluteFill }}>
-          <Image source={require('../assets/wall.png')}
-            style={{ flex: 1, width: null, height: null }} />
-        </View>
-        <StatusBar
-          translucent
-          backgroundColor="#000000"
-          barStyle="light-content"
-        />
-        <View style={styles.txtContainer}>
-          <TextInput
-            placeholder='E-mail'
-            style={styles.textInput}
-            placeholderTextColor='black'
-            onChangeText={val => this.onChangeText('email', val)}
+    if (this.state.loading == true) {
+      return (
+        <View style={styles.container}>
+          <StatusBar
+            translucent
+            backgroundColor="#ffffff"
+            barStyle="dark-content"
           />
-          <TextInput
-            placeholder='PASSWORD'
-            style={styles.textInput}
-            placeholderTextColor='black'
-            onChangeText={val => this.onChangeText('password', val)}
-          />
-          <TouchableOpacity style={styles.button} onPress={() => this.Login()}>
-            <Text>LOGIN</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.buttonlink} onPress={() => this.props.navigation.navigate('Signup')}>
-            <Text>NOT REGISTERED</Text>
-          </TouchableOpacity>
+          <Image source={require('./../assets/Train05.png')} />
+          <ActivityIndicator size="large" color="blue" />
         </View>
-      </View>
-    );
+      )
+    }
+    else {
+      return (
+        <View style={styles.container}>
+          <View style={{ ...StyleSheet.absoluteFill }}>
+            <Image source={require('../assets/wall.png')}
+              style={{ flex: 1, width: null, height: null }} />
+          </View>
+          <StatusBar
+            translucent
+            backgroundColor="#000000"
+            barStyle="light-content"
+          />
+          <View style={styles.txtContainer}>
+            <TextInput
+              placeholder='E-mail'
+              style={styles.textInput}
+              placeholderTextColor='black'
+              onChangeText={val => this.onChangeText('email', val)}
+            />
+            <TextInput
+              placeholder='PASSWORD'
+              style={styles.textInput}
+              placeholderTextColor='black'
+              onChangeText={val => this.onChangeText('password', val)}
+            />
+            <TouchableOpacity style={styles.button} onPress={() => this.Login()}>
+              <Text>LOGIN</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.buttonlink} onPress={() => this.props.navigation.navigate('Signup')}>
+              <Text>NOT REGISTERED</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+    }
   }
 }
 

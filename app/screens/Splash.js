@@ -23,7 +23,7 @@ export default class Splash extends Component {
   componentDidMount() {
 
     firebase.auth().onAuthStateChanged(user => {
-      this.props.navigation.navigate(user ? 'Dashboard1' : 'Login')
+      this.props.navigation.navigate(user ? 'Dashboard1' : 'Welcome')
       console.log(user);
     })
 

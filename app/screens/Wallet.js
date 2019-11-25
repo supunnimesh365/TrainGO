@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { View, Text, StyleSheet, StatusBar, Image, ActivityIndicator } from 'react-native';
 import { Slider, Card, ButtonGroup } from 'react-native-elements';
 import firebase from './../constants/firebase';
+import QRCode from 'react-native-qrcode-svg';
 
 class Wallet extends Component {
   constructor(props) {
@@ -9,7 +10,8 @@ class Wallet extends Component {
     this.state = {
       Wallet_Ballence: 0,
       Start_App: false,
-      successLoad: false
+      successLoad: false,
+      usrid: firebase.auth().currentUser.uid,
     };
     this.updateWallet = this.updateWallet.bind(this)
   }
@@ -46,7 +48,7 @@ class Wallet extends Component {
     // console.log(this.state.Wallet_Ballence);
     if (!this.state.successLoad) {
       return (
-        <View style={{ flex: 1 }}>
+        <View style={styles.container}>
           <StatusBar
             backgroundColor="#ffffff"
             barStyle="dark-content"
@@ -67,9 +69,19 @@ class Wallet extends Component {
             backgroundColor="#ffffff"
             barStyle="dark-content"
           />
-          <View>
+          <View style={styles.container}>
             <Card>
-              <Text>{this.state.Wallet_Ballence}</Text>
+              <Text>Your Available Balance is:{this.state.Wallet_Ballence}</Text>
+            </Card>
+            <QRCode
+              style={styles.QR}
+              value={this.state.usrid}
+              size={200}
+              logoSize={100}
+              logoBackgroundColor='transparent'
+            />
+            <Card>
+              <Text>Use this QR Code to topup your account</Text>
             </Card>
           </View>
 
