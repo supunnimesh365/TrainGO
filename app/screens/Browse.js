@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { View, Text, StatusBar, FlatList, SectionList, ListView, Image, ActivityIndicator, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StatusBar, TouchableHighlight, Image, ActivityIndicator, StyleSheet, ScrollView } from 'react-native';
 import { Slider, Card, List, ListItem, ButtonGroup } from 'react-native-elements';
 import firebase from './../constants/firebase';
-
+import QRCode from 'react-native-qrcode-svg';
 
 class Browse extends Component {
   constructor(props) {
@@ -11,8 +11,21 @@ class Browse extends Component {
       usrid: firebase.auth().currentUser.uid,
       booking: [],
       successLoad: false,
+      QRload: false,
+      idVal: ''
     };
     this.getBookings = this.getBookings.bind(this);
+    this.setQRloadStatus = this.setQRloadStatus.bind(this);
+    this.setQR = this.setQR.bind(this);
+    this.getQR = this.getQR.bind(this);
+  }
+
+  setQR(idVal) {
+    this.setState({ idVal });
+  }
+
+  setQRloadStatus(QRload) {
+    this.setState({ QRload });
   }
 
   getBookings(booking) {
@@ -33,21 +46,53 @@ class Browse extends Component {
     })
   }
 
-  WholeNews() {
-    const {booking} = this.state
-    return booking.map(function(book, i){
+  getQR(data) {
+    console.log(data);
+    this.setQR(data);
+    this.setQRloadStatus(true);
+  }
 
-      return(
+  backtoView(){
+    this.setQRloadStatus(false);
+    this.componentDidMount();
+  }
+
+  WholeNews() {
+    const { booking } = this.state
+    var that = this
+    var show = false
+    return booking.map(function (book, i) {
+
+      return (
         <View key={i}>
-          {book.status == 1?
-          <Card>
-          <Text>{book.trainID}</Text>
-          <View>
-            <Text>{book.uid}</Text>
-          </View>
-          
-          </Card>:
-          <View></View>}
+          {book.status == 1 ?
+            <Card>
+              <Text></Text>
+              <View>
+                <Text>Your Unique ID:{book.uid}</Text>
+                <Text>Date:{book.date}</Text>
+                <Text>Class:{book.class}</Text>
+                <Text>Seats: Full-{book.fullseats}| half-{book.halfseats}</Text>
+                <Text>Time:{book.time}</Text>
+                <Text>Train ID:{book.trainID}</Text>
+                <TouchableHighlight
+                  onPress={() => that.getQR(book.uid)}
+                  style={styles.button}>
+                  <Text style={styles.buttontxt}>View QR to confirm</Text>
+                </TouchableHighlight>
+                {/* {!show ?
+                  <QRCode
+                    style={styles.QR}
+                    value={book.uid}
+                    size={200}
+                    logoSize={100}
+                    logoBackgroundColor='transparent'
+                  />:<View></View>
+                } */}
+              </View>
+
+            </Card> :
+            <View></View>}
         </View>
       );
     });
@@ -58,7 +103,7 @@ class Browse extends Component {
 
     const { booking } = this.state
     console.log(booking);
-    if (this.state.successLoad == true) {
+    if (this.state.successLoad == true && this.state.QRload == false) {
       return (
         <ScrollView>
           <StatusBar
@@ -70,6 +115,24 @@ class Browse extends Component {
           </View>
         </ScrollView>
       );
+    }
+    else if (this.state.QRload == true) {
+      return (
+        <View style={styles.container}>
+          <QRCode
+            style={styles.QR}
+            value={this.state.idVal}
+            size={200}
+            logoSize={100}
+            logoBackgroundColor='transparent'
+          />
+          <TouchableHighlight
+            onPress={()=>this.backtoView()}
+            style={styles.button}>
+            <Text style={styles.buttontxt}>View QR to confirm</Text>
+          </TouchableHighlight>
+        </View>
+      )
     }
     else {
       return (

@@ -135,6 +135,7 @@ class Home extends Component {
 
 
   onQR_Code_Scan_Done = (QR_Code) => {
+
     this.componentDidMount();
     if (!QR_Code.startsWith('{')) {
       Alert.alert(
@@ -223,13 +224,14 @@ class Home extends Component {
               let { Start_Station, Start_Station_Name, End_Station, End_Station_Name, classVal, usrid, passengersCount, passengersCountHalf } = this.state;
 
 
-              firebase.database().ref("trips/" + this.state.tripID).set({
+              firebase.database().ref("trips/" + usrid + "/" + this.state.tripID).set({
                 user: usrid,
                 start_station: Start_Station,
                 start_station_name: Start_Station_Name,
                 end_station: obj.station_id,
                 end_station_name: obj.station_name,
                 success: true,
+                date:this.state.date,
                 charge: totFare,
                 class: classVal,
                 full_passenger_count: passengersCount,
@@ -292,13 +294,14 @@ class Home extends Component {
             let { Start_Station, Start_Station_Name, End_Station, End_Station_Name, classVal, usrid, passengersCount, passengersCountHalf } = this.state;
 
 
-            firebase.database().ref("trips/" + this.state.tripID).set({
+            firebase.database().ref("trips/" + usrid + "/" + this.state.tripID).set({
               user: usrid,
               start_station: Start_Station,
               start_station_name: Start_Station_Name,
               end_station: obj.station_id,
               end_station_name: obj.station_name,
               success: true,
+              date:this.state.date,
               charge: totFare,
               class: classVal,
               full_passenger_count: passengersCount,

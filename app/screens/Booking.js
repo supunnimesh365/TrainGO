@@ -284,7 +284,7 @@ class Booking extends Component {
     const startDate = selectedStartDate ? selectedStartDate.toString() : '';
     if (!this.state.successLoad) {
       return (
-        <View>
+        <View style={styles.container}>
           <StatusBar
             backgroundColor="#ffffff"
             barStyle="dark-content"

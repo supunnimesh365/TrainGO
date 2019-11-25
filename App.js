@@ -7,10 +7,10 @@
  */
 
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import {Platform,Image, StyleSheet, SafeAreaView, ScrollView, Dimensions, Text, View} from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
 //import Navigation from './app/navigation/index';
-import { createSwitchNavigator, createAppContainer, createDrawerNavigator, createBottomTabNavigator, createStackNavigator } from 'react-navigation';
+import { createSwitchNavigator, createAppContainer, createDrawerNavigator, createBottomTabNavigator, createStackNavigator, DrawerItems } from 'react-navigation';
 import { createMaterialBottomTabNavigator } from "react-navigation-material-bottom-tabs";
 import Icon from 'react-native-vector-icons/Ionicons'
 import Home from './app/screens/Home'
@@ -24,30 +24,17 @@ import Icon1 from 'react-native-vector-icons/AntDesign'
 import Splash from './app/screens/Splash';
 import Login from './app/screens/Login';
 import Browse from './app/screens/Browse';
+import tripHistory from './app/screens/History';
+import Settings from './app/screens/Settings';
+import Logout from './app/screens/Logout';
+import Contactus from './app/screens/ContactUs';
 import firebase from './app/constants/firebase';
+import ContactUs from './app/screens/ContactUs';
 
 
 //NEED Validating need places
 
 class App extends Component{
-
-  // componentWillMount(){
-  //   // Your web app's Firebase configuration
-  // var firebaseConfig = {
-  //   apiKey: "AIzaSyDzBchctm2VgacqpThTN0FRRHfwZSuaoZM",
-  //   authDomain: "traingoapp.firebaseapp.com",
-  //   databaseURL: "https://traingoapp.firebaseio.com",
-  //   projectId: "traingoapp",
-  //   storageBucket: "traingoapp.appspot.com",
-  //   messagingSenderId: "646862527248",
-  //   appId: "1:646862527248:web:b26022c7603ce35497e395"
-  // };
-  // // Initialize Firebase
-  // firebase.initializeApp(firebaseConfig);
-  // console.log(firebase);
-  // }
-
-
 
   render(){
     return (
@@ -57,6 +44,21 @@ class App extends Component{
 }
 
 export default App;
+ 
+const headerComponent = props => {
+  return(
+  <SafeAreaView style={{flex:1}}>
+    <View style={{height:200, backgroundColor:'white', alignItems:"center", justifyContent:"center"}}>
+      <Image source = {require('./app/assets/logo.png')} style={{height:120, width
+      :120, borderRadius: 20, backgroundColor:"grey"}}/>
+      <Text>TrainGO v1.0</Text>
+      <Text>eazy pay, eazy way</Text>
+    </View>
+    <ScrollView> 
+      <DrawerItems {...props}/>
+    </ScrollView>
+  </SafeAreaView>
+)}
 
 const DashboardTabNavigator = createMaterialBottomTabNavigator(
   {
@@ -106,7 +108,6 @@ const DashboardTabNavigator = createMaterialBottomTabNavigator(
 
 const DashboardStackNavigator = createStackNavigator({
   DashboardTabNavigator : DashboardTabNavigator
-
 },{
   defaultNavigationOptions:({navigation})=>{
     return{
@@ -118,16 +119,150 @@ const DashboardStackNavigator = createStackNavigator({
   }
 })
 
-const AppDrawerNavigator = createDrawerNavigator({
-  Dashboard:{
-    screen:DashboardStackNavigator
-  },
-  Browse:{
+const BrowseStackNavigator = createStackNavigator({
+  Browse : {
     screen:Browse
   }
-  // Signup:{
-  //   screen:Signup
-  // }
+},{
+  defaultNavigationOptions:({navigation})=>{
+    return{
+      headerLeft:
+        <Icon style={{paddingLeft:10, color:'#000000'}}
+        onPress={()=>navigation.openDrawer()}
+        size={30} name='md-menu'/>,
+      headerTitle:'Recent Bookings'
+    }
+  }
+})
+
+const HistoryStackNavigator = createStackNavigator({
+  tripHistory : {
+    screen:tripHistory
+  }
+},{
+  defaultNavigationOptions:({navigation})=>{
+    return{
+      headerLeft:
+        <Icon style={{paddingLeft:10, color:'#000000'}}
+        onPress={()=>navigation.openDrawer()}
+        size={30} name='md-menu'/>,
+      headerTitle:'Travel History'
+    }
+  }
+})
+
+const SettingStackNavigator = createStackNavigator({
+  Settings : {
+    screen:Settings
+  }
+},{
+  defaultNavigationOptions:({navigation})=>{
+    return{
+      headerLeft:
+        <Icon style={{paddingLeft:10, color:'#000000'}}
+        onPress={()=>navigation.openDrawer()}
+        size={30} name='md-menu'/>,
+      headerTitle:'Settings'
+    }
+  }
+})
+
+const LogoutStackNavigator = createStackNavigator({
+  Logout : {
+    screen:Logout
+  }
+},{
+  defaultNavigationOptions:({navigation})=>{
+    return{
+      headerLeft:
+        <Icon style={{paddingLeft:10, color:'#000000'}}
+        onPress={()=>navigation.openDrawer()}
+        size={30} name='md-menu'/>,
+      headerTitle:'Logging Out'
+    }
+  }
+})
+
+const ContactStackNavigator = createStackNavigator({
+  ContactUs : {
+    screen:ContactUs
+  }
+},{
+  defaultNavigationOptions:({navigation})=>{
+    return{
+      headerLeft:
+        <Icon style={{paddingLeft:10, color:'#000000'}}
+        onPress={()=>navigation.openDrawer()}
+        size={30} name='md-menu'/>,
+      headerTitle:'Contact Us'
+    }
+  }
+})
+
+const AppDrawerNavigator = createDrawerNavigator({
+  Dashboard:{
+    screen:DashboardStackNavigator,
+    navigationOptions:{
+      title:'Home',
+      drawerIcon: ({ tintColor}) => (
+        <View>
+          <Icon1 style={[{color:tintColor}]} size={20} name='book'/>
+        </View>),
+    },
+  },
+  Browse:{
+    screen:BrowseStackNavigator,
+    navigationOptions:{
+      title:'Train Bookings',
+      drawerIcon: ({ tintColor}) => (
+        <View>
+          <Icon1 style={[{color:tintColor}]} size={20} name='book'/>
+        </View>),
+    },
+  },
+  tripHistory:{
+    screen:HistoryStackNavigator,
+    navigationOptions:{
+      title:'Travel History',
+      drawerIcon: ({ tintColor}) => (
+        <View>
+          <Icon1 style={[{color:tintColor}]} size={20} name='book'/>
+        </View>),
+    },
+  },
+  Settings:{
+    screen:SettingStackNavigator,
+    navigationOptions:{
+      title:'Settings',
+      drawerIcon: ({ tintColor}) => (
+        <View>
+          <Icon1 style={[{color:tintColor}]} size={20} name='book'/>
+        </View>),
+    },
+  },
+  ContactUs:{
+    screen:ContactStackNavigator,
+    navigationOptions:{
+      title:'Contact Us',
+      drawerIcon: ({ tintColor}) => (
+        <View>
+          <Icon1 style={[{color:tintColor}]} size={20} name='book'/>
+        </View>),
+    },
+  },
+  Logout:{
+    screen:LogoutStackNavigator,
+    navigationOptions:{
+      title:'Loging Out',
+      drawerIcon: ({ tintColor}) => (
+        <View>
+          <Icon1 style={[{color:tintColor}]} size={20} name='book'/>
+        </View>),
+    },
+  },
+},
+{
+  contentComponent:headerComponent
 });
 
 const AppSwitchNavigator = createSwitchNavigator({
@@ -137,7 +272,12 @@ const AppSwitchNavigator = createSwitchNavigator({
   Signup:{screen:Signup},
   Login:{screen:Login},
   Dashboard:{screen:DashboardStackNavigator},
-  Browse:{screen:Browse}
+  Browse:{screen:Browse},
+  tripHistory:{screen: tripHistory},
+  ContactUs:{screen:ContactUs},
+  Logout: {screen:Logout},
+  Settings: {screen:Settings}
+  
 });
 
 

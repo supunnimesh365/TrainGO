@@ -170,3 +170,6 @@ https://www.npmjs.com/package/react-native-numeric-input
 
 https://react-native-elements.github.io/react-native-elements/docs/0.19.1/lists.html
 https://medium.com/differential/react-native-basics-how-to-use-the-listview-component-a0ec44cf1fe8
+https://firebase.google.com/docs/auth/web/manage-users#send_a_password_reset_email
+https://firebase.google.com/docs/auth/web/manage-users#delete_a_user
+https://stackoverflow.com/questions/37376708/how-do-i-sign-out-users-in-firebase-3-0
