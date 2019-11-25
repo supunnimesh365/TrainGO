@@ -206,7 +206,7 @@ const AppDrawerNavigator = createDrawerNavigator({
       title:'Home',
       drawerIcon: ({ tintColor}) => (
         <View>
-          <Icon1 style={[{color:tintColor}]} size={20} name='book'/>
+          <Icon1 style={[{color:tintColor}]} size={20} name='home'/>
         </View>),
     },
   },
@@ -226,7 +226,7 @@ const AppDrawerNavigator = createDrawerNavigator({
       title:'Travel History',
       drawerIcon: ({ tintColor}) => (
         <View>
-          <Icon1 style={[{color:tintColor}]} size={20} name='book'/>
+          <Icon1 style={[{color:tintColor}]} size={20} name='database'/>
         </View>),
     },
   },
@@ -236,7 +236,7 @@ const AppDrawerNavigator = createDrawerNavigator({
       title:'Settings',
       drawerIcon: ({ tintColor}) => (
         <View>
-          <Icon1 style={[{color:tintColor}]} size={20} name='book'/>
+          <Icon1 style={[{color:tintColor}]} size={20} name='setting'/>
         </View>),
     },
   },
@@ -246,17 +246,17 @@ const AppDrawerNavigator = createDrawerNavigator({
       title:'Contact Us',
       drawerIcon: ({ tintColor}) => (
         <View>
-          <Icon1 style={[{color:tintColor}]} size={20} name='book'/>
+          <Icon1 style={[{color:tintColor}]} size={20} name='phone'/>
         </View>),
     },
   },
   Logout:{
     screen:LogoutStackNavigator,
     navigationOptions:{
-      title:'Loging Out',
+      title:'Log Out',
       drawerIcon: ({ tintColor}) => (
         <View>
-          <Icon1 style={[{color:tintColor}]} size={20} name='book'/>
+          <Icon1 style={[{color:tintColor}]} size={20} name='logout'/>
         </View>),
     },
   },

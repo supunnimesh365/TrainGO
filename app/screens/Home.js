@@ -5,7 +5,7 @@ const { width, height } = Dimensions.get('window')
 import { Slider, Card, ButtonGroup } from 'react-native-elements';
 import firebase from './../constants/firebase';
 import uuid from 'uuid-random';
-
+import Icon1 from 'react-native-vector-icons/AntDesign'
 // station device QRcode change daily
 // get value for trip (Ex: Kandana676768Maradana909090)
 // calculate for all the passengers
@@ -191,7 +191,7 @@ class Home extends Component {
               //fare.full and fare.half to state
               if (balFare < 0) {
                 Alert.alert(
-                  'Reminder4',
+                  'Reminder',
                   'Your balance is now minus value, To continue with the service PLEASE RECHARGE now',
                   [
                     { text: 'OK', onPress: () => console.log('OK Pressed') },
@@ -202,7 +202,7 @@ class Home extends Component {
               }
               else if (balFare < 100) {
                 Alert.alert(
-                  'Reminder5',
+                  'Reminder',
                   'Your balance is less than Rs.100, To continue the service PLEASE RECHARGE soon ',
                   [
                     { text: 'OK', onPress: () => console.log('OK Pressed') },
@@ -212,7 +212,7 @@ class Home extends Component {
               }
               else {
                 Alert.alert(
-                  'Reminder6',
+                  'Reminder',
                   'You have successfully completed your trip',
                   [
                     { text: 'OK', onPress: () => console.log('OK Pressed') },
@@ -231,7 +231,7 @@ class Home extends Component {
                 end_station: obj.station_id,
                 end_station_name: obj.station_name,
                 success: true,
-                date:this.state.date,
+                date: this.state.date,
                 charge: totFare,
                 class: classVal,
                 full_passenger_count: passengersCount,
@@ -261,7 +261,7 @@ class Home extends Component {
             this.updateBalance(balFare);
             if (balFare < 0) {
               Alert.alert(
-                'Reminder1',
+                'Reminder',
                 'Your balance is now minus value, To continue with the service PLEASE RECHARGE now',
                 [
                   { text: 'OK', onPress: () => console.log('OK Pressed') },
@@ -272,7 +272,7 @@ class Home extends Component {
             }
             else if (balFare < 100) {
               Alert.alert(
-                'Reminder2',
+                'Reminder',
                 'Your balance is less than Rs.100, To continue the service PLEASE RECHARGE soon ',
                 [
                   { text: 'OK', onPress: () => console.log('OK Pressed') },
@@ -282,7 +282,7 @@ class Home extends Component {
             }
             else {
               Alert.alert(
-                'Reminder3',
+                'Reminder',
                 'You have successfully completed your trip',
                 [
                   { text: 'OK', onPress: () => console.log('OK Pressed') },
@@ -301,7 +301,7 @@ class Home extends Component {
               end_station: obj.station_id,
               end_station_name: obj.station_name,
               success: true,
-              date:this.state.date,
+              date: this.state.date,
               charge: totFare,
               class: classVal,
               full_passenger_count: passengersCount,
@@ -434,9 +434,15 @@ class Home extends Component {
                 <Text>Class:{this.state.classVal}</Text>
                 <Text>Tickets: Full: {this.state.passengersCount} | Half: {this.state.passengersCountHalf}</Text>
               </Card>
-            </View> : <View></View>}
+            </View> :  <View>
+              </View>}
           <View style={styles.txtContainer}>
             <Card title={this.state.Start_Station ? 'Scan QR Code To End Your Trip' : 'Scan QR Code To Start Your Trip'}>
+            <View style={{ width:'100%', flexDirection: 'row',justifyContent:'center', alignContent: 'center', alignItems: 'center', padding: 5 }}>
+                <Icon1 size={30} name='mobile1' />
+                <Icon1 size={30} name='arrowright' />
+                <Icon1 size={30} name='qrcode' />
+              </View>
               <TouchableOpacity
                 onPress={this.open_QR_Code_Scanner}
                 style={styles.button}>
@@ -551,6 +557,13 @@ class Home extends Component {
             // this.setState({ Start_Scanner: false })
           }
         />
+        <TouchableOpacity
+              onPress={this.backtoMain}
+              style={styles.button1}>
+              <Text style={styles.buttontxt}>
+                Back To Scanner
+                </Text>
+            </TouchableOpacity>
 
       </View>
     );
@@ -586,6 +599,7 @@ const styles = StyleSheet.create({
     bottom: (height / 2) - 50,
     // top: height / 2,
     // height: 150,
+    alignContent: 'center',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -613,6 +627,18 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: 'black',
+    height: 70,
+    width: 200,
+    alignSelf: 'center',
+    height: 50,
+    borderRadius: 35,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  button1: {
+    backgroundColor: 'black',
+    borderWidth: 0.5,
+    borderColor: 'white',
     height: 70,
     width: 200,
     alignSelf: 'center',
