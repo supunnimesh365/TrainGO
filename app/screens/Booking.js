@@ -185,7 +185,7 @@ class Booking extends Component {
     //update seats
     var items = []
     console.log('33333', this.state.selectedStationStart, '344444', this.state.selectedStationEnd, '453656');
-    firebase.database().ref("bookingDetails/" + this.state.selectedStationStart + this.state.selectedStationEnd + "/").on("value", (snapshot) => {
+    firebase.database().ref("bookingDetails/" + this.state.selectedStationStart.name + this.state.selectedStationStart.id + this.state.selectedStationEnd.name + this.state.selectedStationEnd.id+"/").on("value", (snapshot) => {
       snapshot.forEach((childSnapshot) => {
         var childKey = childSnapshot.key;
         var childData = childSnapshot.val();
@@ -303,14 +303,17 @@ class Booking extends Component {
           />
           <ScrollView>
             <Card title="Your Booking Details">
-              <Text>Date:{this.state.date}</Text>
-              <Text>From:{this.state.selectedStationStart}</Text>
-              <Text>To:{this.state.selectedStationEnd}</Text>
-              <Text>Class:{this.state.classVal}</Text>
-              <Text>Price: Full:{this.state.fullTicketPrice}</Text>
-              <Text>Price: Half:{this.state.halfTicketPrice}</Text>
-              <Text>Tickets: Full: {this.state.seats}|Half:{this.state.halfseats}</Text>
-              <Text>Total Cost: {this.state.totalPrice}</Text>
+              <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center', alignContent: 'center', alignItems: 'center', padding: 5 }}>
+                <Text style={{ alignSelf: "flex-start" }}>Date:</Text><Text style={{ alignSelf: "flex-end" }}>{this.state.date}</Text>
+              </View>
+              <Text style={styles.viewstyle}>From:{this.state.selectedStationStart.name}</Text>
+              <Text style={styles.viewstyle}>To:{this.state.selectedStationEnd.name}</Text>
+              <Text style={styles.viewstyle}>Tickets: Full: {this.state.seats}|Half:{this.state.halfseats}</Text>
+              <Text style={styles.viewstyle}>Class:{this.state.classVal}</Text>
+              <Text style={styles.viewstyle}>Price: Full:{this.state.fullTicketPrice}</Text>
+              <Text style={styles.viewstyle}>Price: Half:{this.state.halfTicketPrice}</Text>
+              <Text style={styles.viewstyle}>{this.state.seats}X{this.state.fullTicketPrice}+{this.state.halfseats}X{this.state.halfTicketPrice}</Text>
+              <Text style={styles.viewstyle}>Total Cost: {this.state.seats * this.state.fullTicketPrice + this.state.halfseats * this.state.halfTicketPrice}</Text>
 
               {!this.state.selector ?
                 <TouchableHighlight
@@ -333,7 +336,7 @@ class Booking extends Component {
                     {
                       data1.map((item) => {
                         return (
-                          <Picker.Item label={item.name} value={item.name + item.id} key={item.name} />
+                          <Picker.Item label={item.name} value={item} key={item.name} />
                         );
                       })
                     }
@@ -350,7 +353,7 @@ class Booking extends Component {
                     {
                       data2.map((item) => {
                         return (
-                          <Picker.Item label={item.name} value={item.name + item.id} key={item.name} />
+                          <Picker.Item label={item.name} value={item} key={item.name} />
                         );
                       })
                     }
@@ -492,5 +495,9 @@ const styles = StyleSheet.create({
   },
   buttontxt: {
     color: 'white',
+  },
+  viewstyle: {
+    fontWeight: 'bold',
+    color: 'black'
   }
 });
