@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, StatusBar,ActivityIndicator,Image, Dimensions } from 'react-native';
+import { View, StatusBar, ActivityIndicator, Platform, Image, Dimensions, Alert,  NetInfo, TextInput, PermissionsAndroid, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import firebase from './../constants/firebase';
 const { width, height } = Dimensions.get('window')
 
@@ -10,7 +10,40 @@ class Logout extends Component {
     };
   }
 
+  CheckConnectivity = () => {
+    // For Android devices
+    if (Platform.OS === "android") {
+      NetInfo.isConnected.fetch().then(isConnected => {
+        if (isConnected) {
+        } else {
+          Alert.alert("You are offline!");
+        }
+      });
+    } else {
+      // For iOS devices
+      NetInfo.isConnected.addEventListener(
+        "connectionChange",
+        this.handleFirstConnectivityChange
+      );
+    }
+  };
+
+  handleFirstConnectivityChange = isConnected => {
+    NetInfo.isConnected.removeEventListener(
+      "connectionChange",
+      this.handleFirstConnectivityChange
+    );
+
+    if (isConnected === false) {
+      Alert.alert("You are offline!");
+    } else {
+      Alert.alert("You are online!");
+    }
+  };
+
+
   componentDidMount(){
+    this.CheckConnectivity();
     firebase.auth().signOut().then(function() {
       console.log('Signed Out');
     }, function(error) {

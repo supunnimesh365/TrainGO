@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StatusBar, ActivityIndicator, Platform, Image, Dimensions, Alert, TextInput, PermissionsAndroid, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, StatusBar, ActivityIndicator, Platform, Image, Dimensions, Alert,  NetInfo, TextInput, PermissionsAndroid, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { CameraKitCameraScreen, } from 'react-native-camera-kit';
 const { width, height } = Dimensions.get('window')
 import { Slider, Card, ButtonGroup } from 'react-native-elements';
@@ -53,6 +53,38 @@ class Home extends Component {
     this.updateTotal = this.updateTotal.bind(this)
   }
 
+  CheckConnectivity = () => {
+    // For Android devices
+    if (Platform.OS === "android") {
+      NetInfo.isConnected.fetch().then(isConnected => {
+        if (isConnected) {
+        } else {
+          Alert.alert("You are offline!");
+        }
+      });
+    } else {
+      // For iOS devices
+      NetInfo.isConnected.addEventListener(
+        "connectionChange",
+        this.handleFirstConnectivityChange
+      );
+    }
+  };
+
+  handleFirstConnectivityChange = isConnected => {
+    NetInfo.isConnected.removeEventListener(
+      "connectionChange",
+      this.handleFirstConnectivityChange
+    );
+
+    if (isConnected === false) {
+      Alert.alert("You are offline!");
+    } else {
+      Alert.alert("You are online!");
+    }
+  };
+
+
   updateBalance(balance) {
     this.setState({ balance })
   }
@@ -77,6 +109,8 @@ class Home extends Component {
 
   //NEED TO CHECK WHETHER USER IS AUTHORIZID
   componentDidMount() {
+
+   this.CheckConnectivity();
 
     //var that = this;
     var user = firebase.auth().currentUser;

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Image, StyleSheet, ActivityIndicator, StatusBar } from 'react-native';
+import { View, StatusBar, ActivityIndicator, Platform, Image, Dimensions, Alert,  NetInfo, TextInput, PermissionsAndroid, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import firebase from './../constants/firebase';
 // import { withNavigation } from 'react-navigation'; 
 
@@ -19,9 +19,40 @@ export default class Splash extends Component {
   //     this.props.navigation.navigate('Welcome')
   // },2000);
   // }
+  CheckConnectivity = () => {
+    // For Android devices
+    if (Platform.OS === "android") {
+      NetInfo.isConnected.fetch().then(isConnected => {
+        if (isConnected) {
+        } else {
+          Alert.alert("You are offline!");
+        }
+      });
+    } else {
+      // For iOS devices
+      NetInfo.isConnected.addEventListener(
+        "connectionChange",
+        this.handleFirstConnectivityChange
+      );
+    }
+  };
+
+  handleFirstConnectivityChange = isConnected => {
+    NetInfo.isConnected.removeEventListener(
+      "connectionChange",
+      this.handleFirstConnectivityChange
+    );
+
+    if (isConnected === false) {
+      Alert.alert("You are offline!");
+    } else {
+      Alert.alert("You are online!");
+    }
+  };
+
 
   componentDidMount() {
-
+    this.CheckConnectivity();
     firebase.auth().onAuthStateChanged(user => {
       this.props.navigation.navigate(user ? 'Dashboard1' : 'Welcome')
       console.log(user);

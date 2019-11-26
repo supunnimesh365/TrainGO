@@ -1,18 +1,7 @@
 import React, { Component } from 'react';
 //import {View, Text} from 'react-native';
-import {
-    View,
-    Alert,
-    Text,
-    Button,
-    Image,
-    StatusBar,
-    TextInput,
-    StyleSheet,
-    Dimensions,
-    TouchableOpacity,
-    ActivityIndicator
-} from 'react-native';
+import { View, StatusBar, ActivityIndicator, Platform, Image, Dimensions, Alert,  NetInfo, TextInput, PermissionsAndroid, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+
 import uuid from 'uuid-random';
 import firebase from './../constants/firebase';
 const { width, height } = Dimensions.get('window')
@@ -30,6 +19,42 @@ export default class Signup extends Component {
     onChangeText = (key, val) => {
         this.setState({ [key]: val })
     }
+
+    CheckConnectivity = () => {
+        // For Android devices
+        if (Platform.OS === "android") {
+          NetInfo.isConnected.fetch().then(isConnected => {
+            if (isConnected) {
+            } else {
+              Alert.alert("You are offline!");
+            }
+          });
+        } else {
+          // For iOS devices
+          NetInfo.isConnected.addEventListener(
+            "connectionChange",
+            this.handleFirstConnectivityChange
+          );
+        }
+      };
+    
+      handleFirstConnectivityChange = isConnected => {
+        NetInfo.isConnected.removeEventListener(
+          "connectionChange",
+          this.handleFirstConnectivityChange
+        );
+    
+        if (isConnected === false) {
+          Alert.alert("You are offline!");
+        } else {
+          Alert.alert("You are online!");
+        }
+      };
+
+      componentDidMount(){
+          this.CheckConnectivity();
+      }
+    
 
 
     signUp = () => {

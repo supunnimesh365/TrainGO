@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, StatusBar, Image, Picker, ActivityIndicator, TouchableHighlight } from 'react-native';
+import { View, StatusBar,ScrollView, Picker, TouchableHighlight, ActivityIndicator, Platform, Image, Dimensions, Alert,  NetInfo, TextInput, PermissionsAndroid, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Slider, Card, ButtonGroup } from 'react-native-elements';
 import firebase from './../constants/firebase';
 import DatePicker from 'react-native-datepicker';
@@ -139,7 +139,41 @@ class Booking extends Component {
     })
   }
 
+  CheckConnectivity = () => {
+    // For Android devices
+    if (Platform.OS === "android") {
+      NetInfo.isConnected.fetch().then(isConnected => {
+        if (isConnected) {
+        } else {
+          Alert.alert("You are offline!");
+        }
+      });
+    } else {
+      // For iOS devices
+      NetInfo.isConnected.addEventListener(
+        "connectionChange",
+        this.handleFirstConnectivityChange
+      );
+    }
+  };
+
+  handleFirstConnectivityChange = isConnected => {
+    NetInfo.isConnected.removeEventListener(
+      "connectionChange",
+      this.handleFirstConnectivityChange
+    );
+
+    if (isConnected === false) {
+      Alert.alert("You are offline!");
+    } else {
+      Alert.alert("You are online!");
+    }
+  };
+
+
   componentDidMount() {
+
+    this.CheckConnectivity();
     // this.updateClass();
     var items = []
     var today = new Date();

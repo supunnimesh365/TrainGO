@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, StatusBar, Image, ActivityIndicator } from 'react-native';
+import { View, StatusBar, ActivityIndicator, Platform, Image, Dimensions, Alert,  NetInfo, TextInput, PermissionsAndroid, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Slider, Card, ButtonGroup } from 'react-native-elements';
 import firebase from './../constants/firebase';
 import QRCode from 'react-native-qrcode-svg';
@@ -20,7 +20,40 @@ class Wallet extends Component {
     this.setState({ Wallet_Ballence })
   }
 
+  CheckConnectivity = () => {
+    // For Android devices
+    if (Platform.OS === "android") {
+      NetInfo.isConnected.fetch().then(isConnected => {
+        if (isConnected) {
+        } else {
+          Alert.alert("You are offline!");
+        }
+      });
+    } else {
+      // For iOS devices
+      NetInfo.isConnected.addEventListener(
+        "connectionChange",
+        this.handleFirstConnectivityChange
+      );
+    }
+  };
+
+  handleFirstConnectivityChange = isConnected => {
+    NetInfo.isConnected.removeEventListener(
+      "connectionChange",
+      this.handleFirstConnectivityChange
+    );
+
+    if (isConnected === false) {
+      Alert.alert("You are offline!");
+    } else {
+      Alert.alert("You are online!");
+    }
+  };
+
+
   componentDidMount() {
+    this.CheckConnectivity();
     //var user = firebase.auth().currentUser;
     //let { successLoad } = this.state;
     //let { Wallet_Balance } = this.state;

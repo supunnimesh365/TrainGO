@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, StatusBar, TouchableHighlight, Image, ActivityIndicator, StyleSheet, ScrollView } from 'react-native';
+import { View, StatusBar, ActivityIndicator, Platform, Image, ScrollView, TouchableHighlight, Dimensions, Alert,  NetInfo, TextInput, PermissionsAndroid, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Slider, Card, List, ListItem, ButtonGroup } from 'react-native-elements';
 import firebase from './../constants/firebase';
 import QRCode from 'react-native-qrcode-svg';
@@ -32,7 +32,43 @@ class Browse extends Component {
     this.setState({ booking });
   }
 
+  CheckConnectivity = () => {
+    // For Android devices
+    if (Platform.OS === "android") {
+      NetInfo.isConnected.fetch().then(isConnected => {
+        if (isConnected) {
+        } else {
+          Alert.alert("You are offline!");
+        }
+      });
+    } else {
+      // For iOS devices
+      NetInfo.isConnected.addEventListener(
+        "connectionChange",
+        this.handleFirstConnectivityChange
+      );
+    }
+  };
+
+  handleFirstConnectivityChange = isConnected => {
+    NetInfo.isConnected.removeEventListener(
+      "connectionChange",
+      this.handleFirstConnectivityChange
+    );
+
+    if (isConnected === false) {
+      Alert.alert("You are offline!");
+    } else {
+      Alert.alert("You are online!");
+    }
+  };
+
+
+  
+
   componentDidMount() {
+
+    this.CheckConnectivity();
     var items = []
     firebase.database().ref("booked/" + this.state.usrid).on("value", (snapshot) => {
       snapshot.forEach((childSnapshot) => {

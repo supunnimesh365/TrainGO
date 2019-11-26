@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Alert, Text, StyleSheet, TouchableHighlight, TextInput, StatusBar, Image, Dimensions } from 'react-native';
+import { View, StatusBar, ActivityIndicator, TouchableHighlight, Platform, Image, Dimensions, Alert, NetInfo, TextInput, PermissionsAndroid, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import firebase from './../constants/firebase';
 const { width, height } = Dimensions.get('window')
 import { Slider, Card, List, ListItem, ButtonGroup } from 'react-native-elements';
@@ -15,6 +15,41 @@ class Settings extends Component {
 
   onChangeText = (key, val) => {
     this.setState({ [key]: val })
+  }
+
+  CheckConnectivity = () => {
+    // For Android devices
+    if (Platform.OS === "android") {
+      NetInfo.isConnected.fetch().then(isConnected => {
+        if (isConnected) {
+        } else {
+          Alert.alert("You are offline!");
+        }
+      });
+    } else {
+      // For iOS devices
+      NetInfo.isConnected.addEventListener(
+        "connectionChange",
+        this.handleFirstConnectivityChange
+      );
+    }
+  };
+
+  handleFirstConnectivityChange = isConnected => {
+    NetInfo.isConnected.removeEventListener(
+      "connectionChange",
+      this.handleFirstConnectivityChange
+    );
+
+    if (isConnected === false) {
+      Alert.alert("You are offline!");
+    } else {
+      Alert.alert("You are online!");
+    }
+  };
+
+  componentDidMount() {
+    this.CheckConnectivity();
   }
 
   resetPassword = () => {
@@ -52,7 +87,7 @@ class Settings extends Component {
   }
 
   deleteAccount = () => {
-    firebase.auth().currentUser.delete().then(function() {
+    firebase.auth().currentUser.delete().then(function () {
       Alert.alert(
         'Success',
         'We have deleted your account',
@@ -61,7 +96,7 @@ class Settings extends Component {
         ],
         { cancelable: false },
       );
-    }).catch(function(error) {
+    }).catch(function (error) {
       Alert.alert(
         'Failed',
         'We were unable to delete your account',
