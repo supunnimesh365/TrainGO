@@ -23,7 +23,7 @@ export default class Login extends Component {
   }
 
   Login = () => {
-    this.setState({ loading: true })
+    
     const { email, password } = this.state
     let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     console.log(email, password);
@@ -50,6 +50,7 @@ export default class Login extends Component {
       );
     }
     else {
+      this.setState({ loading: true })
       firebase
         .auth()
         .signInWithEmailAndPassword(email, password)
@@ -58,7 +59,7 @@ export default class Login extends Component {
           'Error',
           error.message,
           [
-            { text: 'OK', onPress: () => console.log('OK Pressed') },
+            { text: 'OK', onPress: () => this.setState({ loading: false }) },
           ],
           { cancelable: false },
         ))
@@ -101,6 +102,7 @@ export default class Login extends Component {
             />
             <TextInput
               placeholder='PASSWORD'
+              secureTextEntry={true}
               style={styles.textInput}
               placeholderTextColor='black'
               onChangeText={val => this.onChangeText('password', val)}
@@ -110,6 +112,9 @@ export default class Login extends Component {
             </TouchableOpacity>
             <TouchableOpacity style={styles.buttonlink} onPress={() => this.props.navigation.navigate('Signup')}>
               <Text>NOT REGISTERED</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.buttonlink} onPress={() => this.props.navigation.navigate('PasswordReset')}>
+              <Text>can not remember password</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -154,7 +159,7 @@ const styles = StyleSheet.create({
     borderColor: 'black'
   },
   buttonlink: {
-    height: 40,
+    height: 20,
     marginHorizontal: width / 8,
     alignItems: 'center',
     justifyContent: 'center',

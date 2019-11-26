@@ -20,7 +20,8 @@ import Signup from './app/screens/Signup';
 import WelcomeScreen from './app/screens/Welcome';
 import * as constants from './app/constants';
 import { Block } from './app/components';
-import Icon1 from 'react-native-vector-icons/AntDesign'
+import Icon1 from 'react-native-vector-icons/AntDesign';
+import PasswordReset from './app/screens/PasswordReset';
 import Splash from './app/screens/Splash';
 import Login from './app/screens/Login';
 import Browse from './app/screens/Browse';
@@ -276,8 +277,8 @@ const AppSwitchNavigator = createSwitchNavigator({
   tripHistory:{screen: tripHistory},
   ContactUs:{screen:ContactUs},
   Logout: {screen:Logout},
-  Settings: {screen:Settings}
-  
+  Settings: {screen:Settings},
+  PasswordReset:{screen:PasswordReset}
 });
 
 
