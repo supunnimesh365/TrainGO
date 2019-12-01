@@ -463,10 +463,10 @@ class Home extends Component {
           {this.state.QR_Code_Value ?
             <View style={styles.ticketContainer}>
               <Card title="Ticket">
-                <Text>Date:{this.state.date}</Text>
-                <Text>From:{this.state.Start_Station}</Text>
-                <Text>Class:{this.state.classVal}</Text>
-                <Text>Tickets: Full: {this.state.passengersCount} | Half: {this.state.passengersCountHalf}</Text>
+                <Text style={styles.viewstyle}>Date:{this.state.date}</Text>
+                <Text style={styles.viewstyle}>From:{this.state.start_station_name}</Text>
+                <Text style={styles.viewstyle}>Class:{this.state.classVal}</Text>
+                <Text style={styles.viewstyle}>Tickets: Full: {this.state.passengersCount} | Half: {this.state.passengersCountHalf}</Text>
               </Card>
             </View> :  <View>
               </View>}
@@ -680,6 +680,10 @@ const styles = StyleSheet.create({
     borderRadius: 35,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  viewstyle: {
+    fontWeight: 'bold',
+    color: 'black'
   },
   buttontxt: {
     color: 'white',
