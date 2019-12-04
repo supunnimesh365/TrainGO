@@ -20,7 +20,7 @@ class ContactUs extends Component {
             <Text style={{fontWeight:"bold"}}> +9470 489 40 53 </Text>
             <Text style={{fontWeight:"bold"}}> traingo@admin.lk </Text>
             <Text style={{fontWeight:"bold"}}> www.traingo.lk </Text>
-            <Text style={{fontWeight:"bold"}} > 3, Negombo Road, Wattala, Sri-Lanka</Text>
+            <Text style={{fontWeight:"bold"}} > 533, Kapuwagara Road, Kandana, Sri-Lanka</Text>
           </View>
         </Card>
       </View>

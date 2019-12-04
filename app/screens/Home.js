@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StatusBar, ActivityIndicator, Platform, Image, Dimensions, Alert,  NetInfo, TextInput, PermissionsAndroid, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, StatusBar, ActivityIndicator, Platform, Image, Dimensions, Alert, NetInfo, TextInput, PermissionsAndroid, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { CameraKitCameraScreen, } from 'react-native-camera-kit';
 const { width, height } = Dimensions.get('window')
 import { Slider, Card, ButtonGroup } from 'react-native-elements';
@@ -110,7 +110,7 @@ class Home extends Component {
   //NEED TO CHECK WHETHER USER IS AUTHORIZID
   componentDidMount() {
 
-   this.CheckConnectivity();
+    this.CheckConnectivity();
 
     //var that = this;
     var user = firebase.auth().currentUser;
@@ -200,6 +200,7 @@ class Home extends Component {
         this.setState({ Start_Station_Name: obj.station_name });
         this.setState({ date: obj.date });
         this.setState({ changeVal: false });
+        console.log(obj.station_name);
       }
       else {
         this.setState({ End_Station: obj.station_id });
@@ -464,15 +465,15 @@ class Home extends Component {
             <View style={styles.ticketContainer}>
               <Card title="Ticket">
                 <Text style={styles.viewstyle}>Date:{this.state.date}</Text>
-                <Text style={styles.viewstyle}>From:{this.state.start_station_name}</Text>
+                <Text style={styles.viewstyle}>From:{this.state.Start_Station_Name}</Text>
                 <Text style={styles.viewstyle}>Class:{this.state.classVal}</Text>
                 <Text style={styles.viewstyle}>Tickets: Full: {this.state.passengersCount} | Half: {this.state.passengersCountHalf}</Text>
               </Card>
-            </View> :  <View>
-              </View>}
+            </View> : <View>
+            </View>}
           <View style={styles.txtContainer}>
             <Card title={this.state.Start_Station ? 'Scan QR Code To End Your Trip' : 'Scan QR Code To Start Your Trip'}>
-            <View style={{ width:'100%', flexDirection: 'row',justifyContent:'center', alignContent: 'center', alignItems: 'center', padding: 5 }}>
+              <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center', alignContent: 'center', alignItems: 'center', padding: 5 }}>
                 <Icon1 size={30} name='mobile1' />
                 <Icon1 size={30} name='arrowright' />
                 <Icon1 size={30} name='qrcode' />
@@ -500,19 +501,21 @@ class Home extends Component {
           {this.state.changeVal ?
             <View></View> : <View style={styles.newContainer}>
               <Card title="Edit Your Details">
-
+                <Text style={styles.viewstyle}>Half Seat Count</Text>
                 <ButtonGroup
                   onPress={this.updateHalf}
-                  selectedIndex={passengersCountHalf - 1}
+                  selectedIndex={passengersCountHalf}
                   buttons={halves}
                   containerStyle={{ height: 50 }}
                 />
+                <Text style={styles.viewstyle}>Full Seat Count</Text>
                 <ButtonGroup
                   onPress={this.updateFull}
                   selectedIndex={passengersCount - 1}
                   buttons={full}
                   containerStyle={{ height: 50 }}
                 />
+                <Text style={styles.viewstyle}>Traveling Class</Text>
                 <ButtonGroup
                   onPress={this.updateClass}
                   selectedIndex={classVal - 1}
@@ -592,12 +595,12 @@ class Home extends Component {
           }
         />
         <TouchableOpacity
-              onPress={this.backtoMain}
-              style={styles.button1}>
-              <Text style={styles.buttontxt}>
-                Back To Scanner
+          onPress={this.backtoMain}
+          style={styles.button1}>
+          <Text style={styles.buttontxt}>
+            Back To Scanner
                 </Text>
-            </TouchableOpacity>
+        </TouchableOpacity>
 
       </View>
     );
@@ -630,7 +633,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: (height / 2) - 50,
+    bottom: (height / 2) - 40,
     // top: height / 2,
     // height: 150,
     alignContent: 'center',
